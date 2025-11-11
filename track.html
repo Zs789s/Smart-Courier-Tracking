@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Your Parcel - Smart Courier System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        .track-hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .track-hero h1 {
+            font-size: 48px;
+            margin: 0 0 15px 0;
+            font-weight: 700;
+        }
+
+        .track-hero p {
+            font-size: 18px;
+            margin: 0;
+            opacity: 0.95;
+        }
+
+        .track-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .search-section {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+
+        .search-section h2 {
+            color: #333;
+            margin-top: 0;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .search-section p {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        #tracking-form {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        #tracking-number {
+            flex: 1;
+            min-width: 250px;
+            padding: 14px 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        #tracking-number:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        #tracking-form button {
+            padding: 14px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            white-space: nowrap;
+        }
+
+        #tracking-form button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        #tracking-form button:active {
+            transform: translateY(0);
+        }
+
+        .results-section {
+            display: none;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        .order-details {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .order-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .order-header-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .order-header-item strong {
+            color: #667eea;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .status-badge.in-transit {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-badge.delivered {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .status-badge.processing {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .status-badge.pending {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .order-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .detail-box {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .detail-box h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-box p {
+            margin: 0;
+            color: #555;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .map-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .map-section h3 {
+            margin: 0 0 20px 0;
+            color: #333;
+            font-size: 20px;
+        }
+
+        #map {
+            height: 450px;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .timeline {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .timeline h3 {
+            margin: 0 0 25px 0;
+            color: #333;
+            font-size: 20px;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .timeline-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .timeline-icon {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .timeline-content h4 {
+            margin: 0 0 5px 0;
+            color: #333;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .timeline-content p {
+            margin: 5px 0 0 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .timeline-date {
+            color: #999;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        #error-message {
+            background-color: #ffe6e6;
+            color: #d63031;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ff7675;
+            margin-top: 20px;
+            display: none;
+        }
+
+        #error-message.show {
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f0f0f0;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info-box {
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: #555;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .track-hero h1 {
+                font-size: 32px;
+            }
+
+            .order-header {
+                grid-template-columns: 1fr;
+            }
+
+            .order-details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            #tracking-form {
+                flex-direction: column;
+            }
+
+            #tracking-number,
+            #tracking-form button {
+                width: 100%;
+            }
+
+            .search-section {
+                padding: 25px;
+            }
+
+            .order-details,
+            .map-section,
+            .timeline {
+                padding: 20px;
+            }
+
+            #map {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav>
+            <a href="landing.html" class="logo">🚀 SCS</a>
+            <ul>
+                <li><a href="landing.html">Home</a></li>
+                <li><a href="landing.html#features">Features</a></li>
+                <li><a href="track.html" class="active">Track</a></li>
+                <li><a href="order-delivery.html">Order</a></li>
+                <li><a href="owner.html">Manage</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="signup.html" class="button">Sign Up</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="track-hero">
+        <h1>Track Your Parcel</h1>
+        <p>Enter your tracking number to see real-time updates and delivery status</p>
+    </div>
+
+    <main class="track-container">
+        <!-- Search Section -->
+        <div class="search-section">
+            <h2>Enter Tracking Number</h2>
+            <p>Use your 8-character tracking code to track your package (e.g., SCS12345)</p>
+            
+            <form id="tracking-form">
+                <input 
+                    type="text" 
+                    id="tracking-number" 
+                    placeholder="e.g., SCS12345" 
+                    required
+                    maxlength="20"
+                >
+                <button type="submit">Search Parcel</button>
+            </form>
+
+            <div id="error-message"></div>
+
+            <div class="info-box">
+                <p><strong>Sample tracking numbers to try:</strong> SCS12345, SCS67890, SCS24680, SCS13579</p>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" class="results-section">
+            <!-- Loading (do not replace the whole section when loading) -->
+            <div id="results-loading" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Searching for your parcel...</p>
+            </div>
+
+            <!-- Content wrapper: actual results live here and are not replaced by loading -->
+            <div id="results-content">
+                <!-- Order Details -->
+                <div class="order-details">
+                    <div class="order-header">
+                        <div>
+                            <strong>Tracking Number</strong>
+                            <p id="result-tracking-number" style="font-size: 20px; color: #667eea; font-weight: 600; margin: 8px 0 0 0;"></p>
+                        </div>
+                        <div>
+                            <strong>Current Status</strong>
+                            <div id="status-badge"></div>
+                        </div>
+                    </div>
+
+                    <div class="order-details-grid">
+                        <div class="detail-box">
+                            <h4>Sender Information</h4>
+                            <p id="sender-info"></p>
+                        </div>
+                        <div class="detail-box">
+                            <h4>Receiver Information</h4>
+                            <p id="receiver-info"></p>
+                        </div>
+                        <div class="detail-box">
+                            <h4>Package Details</h4>
+                            <p id="package-info"></p>
+                        </div>
+                        <div class="detail-box">
+                            <h4>Delivery Information</h4>
+                            <p id="delivery-info"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map Section -->
+                <div class="map-section">
+                    <h3>Current Location</h3>
+                    <div id="map"></div>
+                </div>
+
+                <!-- Timeline Section -->
+                <div class="timeline">
+                    <h3>Delivery Timeline</h3>
+                    <div id="timeline-content"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="server-status" class="server-status">
+        <span class="status-indicator"></span>
+        <span class="status-text">Checking server...</span>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="landing.html">Home</a></li>
+                    <li><a href="track.html">Track Parcel</a></li>
+                    <li><a href="order-delivery.html">Place Order</a></li>
+                    <li><a href="owner.html">Manage Orders</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="services.html">Services</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Connect</h4>
+                <ul>
+                    <li><a href="#">Twitter</a></li>
+                    <li><a href="#">Facebook</a></li>
+                    <li><a href="#">LinkedIn</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Smart Courier System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let map, currentMarker = null;
+        const serverUrl = 'http://localhost:5000';
+        const statusIndicator = document.querySelector('.status-indicator');
+        const statusText = document.querySelector('.status-text');
+        const resultsSection = document.getElementById('results-section');
+        const resultsLoading = document.getElementById('results-loading');
+        const resultsContent = document.getElementById('results-content');
+
+        // Initialize map
+        function initMap() {
+            if (!map) {
+                map = L.map('map').setView([37.0902, -95.7129], 4);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+            }
+        }
+
+        // Check server status
+        async function checkServerStatus() {
+            try {
+                const response = await fetch(`${serverUrl}/api/orders`);
+                if (response.ok) {
+                    statusIndicator.className = 'status-indicator online';
+                    statusText.textContent = 'Server Online';
+                } else {
+                    statusIndicator.className = 'status-indicator offline';
+                    statusText.textContent = 'Server Error';
+                }
+            } catch (error) {
+                statusIndicator.className = 'status-indicator offline';
+                statusText.textContent = 'Server Offline';
+            }
+        }
+
+        // Track order
+        async function trackOrder(trackingNumber) {
+            const errorMessage = document.getElementById('error-message');
+
+            try {
+                // Show loading overlay, keep the results DOM intact
+                resultsLoading.style.display = 'block';
+                resultsContent.style.display = 'none';
+                resultsSection.classList.add('active');
+                errorMessage.classList.remove('show');
+
+                const response = await fetch(`${serverUrl}/api/track/${trackingNumber}`);
+                if (!response.ok) {
+                    throw new Error('Tracking number not found');
+                }
+
+                const order = await response.json();
+                // Hide loading and show content, then populate
+                resultsLoading.style.display = 'none';
+                resultsContent.style.display = 'block';
+                displayTrackingResults(order);
+                
+            } catch (error) {
+                // Hide results and show error
+                resultsLoading.style.display = 'none';
+                resultsSection.classList.remove('active');
+                errorMessage.textContent = `Error: ${error.message}. Please check your tracking number and try again.`;
+                errorMessage.classList.add('show');
+            }
+        }
+
+        // Display tracking results
+        function displayTrackingResults(order) {
+            // Tracking number
+            document.getElementById('result-tracking-number').textContent = order.trackingNumber;
+
+            // Status badge
+            const statusMap = {
+                'In Transit': 'in-transit',
+                'Delivered': 'delivered',
+                'Processing': 'processing',
+                'Pending': 'pending'
+            };
+            const statusClass = statusMap[order.status] || 'pending';
+            document.getElementById('status-badge').innerHTML = `<span class="status-badge ${statusClass}">${order.status}</span>`;
+
+            // Sender info
+            document.getElementById('sender-info').innerHTML = `
+                <strong>${order.sender_name}</strong><br>
+                ${order.sender_address}<br>
+                ${order.sender_phone || 'Phone not provided'}
+            `;
+
+            // Receiver info
+            document.getElementById('receiver-info').innerHTML = `
+                <strong>${order.receiver_name}</strong><br>
+                ${order.receiver_address}<br>
+                ${order.receiver_phone || 'Phone not provided'}
+            `;
+
+            // Package info
+            document.getElementById('package-info').innerHTML = `
+                ${order.parcel_description}<br>
+                <strong>Weight:</strong> ${order.weight} kg<br>
+                <strong>Value:</strong> $${order.value}<br>
+                <strong>Service:</strong> ${order.service}
+            `;
+
+            // Delivery info
+            document.getElementById('delivery-info').innerHTML = `
+                <strong>Current Location:</strong><br>
+                ${order.location}<br>
+                <strong>Estimated Delivery:</strong><br>
+                ${order.estimated_delivery}
+            `;
+
+            // Map - initialize and replace previous marker if any
+            initMap();
+            map.setView([order.latitude, order.longitude], 10);
+            if (currentMarker) {
+                map.removeLayer(currentMarker);
+                currentMarker = null;
+            }
+            currentMarker = L.marker([order.latitude, order.longitude], { title: order.location })
+                .addTo(map)
+                .bindPopup(`<strong>${order.location}</strong><br>Current Status: ${order.status}`);
+
+            // Timeline
+            const timelineContent = document.getElementById('timeline-content');
+            timelineContent.innerHTML = order.history.map((item, index) => `
+                 <div class="timeline-item">
+                     <div class="timeline-icon">${order.history.length - index}</div>
+                     <div class="timeline-content">
+                         <h4>${item.status}</h4>
+                         <p>${item.location}</p>
+                         <div class="timeline-date">${item.date}${item.time ? ' at ' + item.time : ''}</div>
+                     </div>
+                 </div>
+             `).join('');
+
+            resultsSection.classList.add('active');
+        }
+
+        // Form submission
+        document.getElementById('tracking-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const trackingNumber = document.getElementById('tracking-number').value.trim().toUpperCase();
+            if (trackingNumber) {
+                trackOrder(trackingNumber);
+            }
+        });
+
+        // Check server status on page load
+        checkServerStatus();
+        setInterval(checkServerStatus, 30000);
+    </script>
+</body>
+</html>

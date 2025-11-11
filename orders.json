@@ -1,0 +1,72 @@
+{
+  "users": [],
+  "orders_by_user": {
+    "1": [
+      {
+        "id": 1,
+        "tracking_number": "SCS12345",
+        "carrier": "SCS Logistics",
+        "service": "Express",
+        "weight": 2.5,
+        "status": "In Transit",
+        "location": "City A Hub",
+        "latitude": 40.7128,
+        "longitude": -74.006,
+        "estimated_delivery": "November 8, 2025",
+        "history": [
+          {
+            "status": "In Transit",
+            "location": "City A Hub",
+            "date": "2025-11-07"
+          },
+          {
+            "status": "Package Processed",
+            "location": "Origin Facility",
+            "date": "2025-11-06"
+          },
+          {
+            "status": "Shipment Created",
+            "location": "Sender's Location",
+            "date": "2025-11-06"
+          }
+        ],
+        "user_id": 1
+      },
+      {
+        "id": 2,
+        "tracking_number": "SCS67890",
+        "carrier": "SCS Logistics",
+        "service": "Standard",
+        "weight": 5.0,
+        "status": "Delivered",
+        "location": "Customer's Address",
+        "latitude": 34.0522,
+        "longitude": -118.2437,
+        "estimated_delivery": "November 7, 2025",
+        "history": [
+          {
+            "status": "Delivered",
+            "location": "Customer's Address",
+            "date": "2025-11-07"
+          },
+          {
+            "status": "Out for Delivery",
+            "location": "Local Distribution Center",
+            "date": "2025-11-07"
+          },
+          {
+            "status": "Package Arrived",
+            "location": "Local Distribution Center",
+            "date": "2025-11-06"
+          },
+          {
+            "status": "Shipment Created",
+            "location": "Sender's Location",
+            "date": "2025-11-05"
+          }
+        ],
+        "user_id": 1
+      }
+    ]
+  }
+}

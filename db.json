@@ -1,0 +1,64 @@
+{
+  "users": [
+    {
+      "id": "user-001",
+      "username": "admin",
+      "email": "admin@smartcourier.com",
+      "password": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5",
+      "phone": "+1-234-567-8900",
+      "address": "123 Business Ave, New York, NY 10001",
+      "createdAt": "2025-11-01T08:00:00"
+    },
+    {
+      "id": "user-002",
+      "username": "john_customer",
+      "email": "john@example.com",
+      "password": "8d969eef6ecad3c29a3a873fba2d9f7f3acf1ea96c20f7c221d68cbe7ee67c41",
+      "phone": "+1-555-001-0001",
+      "address": "456 Oak Street, Los Angeles, CA 90001",
+      "createdAt": "2025-11-05T10:30:00"
+    },
+    {
+      "id": "user-003",
+      "username": "jane_merchant",
+      "email": "jane@merchant.com",
+      "password": "d0944e137b74e5f4a75d761f01da600fd75b27a9a3a9b11f3e0abb44a7c1f14f",
+      "phone": "+1-555-002-0002",
+      "address": "789 Commerce Blvd, Chicago, IL 60601",
+      "createdAt": "2025-11-06T14:15:00"
+    },
+    {
+      "id": "88f2f78e-96f3-40d2-8f3e-26f959011529",
+      "username": "Mohd Muaaz",
+      "email": "Muaazsheikh393ms@gmail.com",
+      "password": "19f48cfe0f30a8cfc8401d2e8f94313e2a768694c7469f6ade2f9dd7aadf7822",
+      "createdAt": "2025-11-11T13:35:17.306172"
+    }
+  ],
+  "orders": [
+    {
+      "id": "00dc80b1-aac6-4261-aedf-b5c6945483d6",
+      "trackingNumber": "",
+      "status": "Shipment Created",
+      "latitude": 32.6653,
+      "longitude": -120.7617,
+      "createdAt": "2025-11-11T12:57:47.315541"
+    },
+    {
+      "id": "fed3575f-6e50-47ea-8909-158815b77c7e",
+      "trackingNumber": "",
+      "status": "Shipment Created",
+      "latitude": 22.7181,
+      "longitude": 75.871,
+      "createdAt": "2025-11-11T13:08:54.278777"
+    },
+    {
+      "id": "f95faf35-41de-44bb-addf-2dcce25b14b8",
+      "trackingNumber": "",
+      "status": "Shipment Created",
+      "latitude": 22.7181,
+      "longitude": 75.871,
+      "createdAt": "2025-11-11T13:28:05.282078"
+    }
+  ]
+}

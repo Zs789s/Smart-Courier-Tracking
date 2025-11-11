@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Courier Tracking</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 400px;
+            width: 100%;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 2px solid #ddd;
+        }
+        #results-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .status-summary {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .leaflet-container {
+            z-index: 1;
+        }
+        .server-status {
+            position: fixed;
+            bottom: 60px;
+            right: 20px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .status-indicator.online {
+            background-color: #27ae60;
+        }
+        .status-indicator.offline {
+            background-color: #d63031;
+        }
+        #error-message {
+            background-color: #ffe6e6;
+            color: #d63031;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ff7675;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav>
+            <a href="index.html" class="logo">SCS</a>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="order-delivery.html">Order Delivery</a></li>
+                <li><a href="backend/login.html">Login</a></li>
+                <li><a href="signup.html" class="button">Sign Up</a></li>
+                <li><a href="backend/owner.html">Owner</a></li>
+                <li><a href="backend/user.html">User</a></li>
+            </ul>
+        </nav>
+        <div class="hero">
+
+            <h1>Smart Courier Tracking & Delivery</h1>
+            <p>Real-time tracking at your fingertips.</p>
+        </div>
+    </header>
+    <main>
+        <section id="tracking-section">
+            <h2>Track Your Parcel</h2>
+            <form id="tracking-form">
+                <input type="text" id="tracking-number" placeholder="Enter your tracking number (e.g., SCS12345)" required>
+                <button type="submit">Track</button>
+            </form>
+        </section>
+        <section id="results-section" class="hidden">
+            <h3>Tracking Details for <span id="result-tracking-number"></span></h3>
+            <div id="tracking-result">
+                <div class="status-summary">
+                    <h4>Current Status: <span id="current-status"></span></h4>
+                    <p><strong>Location:</strong> <span id="current-location"></span></p>
+                    <p><strong>Estimated Delivery:</strong> <span id="estimated-delivery"></span></p>
+                </div>
+                <div id="map"></div>
+                <div class="history">
+                    <h4>Shipment History</h4>
+                    <ul id="shipment-history">
+                        <!-- History items will be populated by JS -->
+                    </ul>
+                </div>
+            </div>
+            <div id="error-message" class="hidden">
+                <p>Tracking number not found. Please check the number and try again.</p>
+            </div>
+        </section>
+    </main>
+    <div id="server-status" class="server-status">
+        <span class="status-indicator"></span>
+        <span class="status-text">Checking server...</span>
+    </div>
+    <footer>
+        <p>&copy; 2025 Smart Courier System</p>
+    </footer>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="../js/script.js"></script>
+</body>
+</html>

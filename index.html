@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting...</title>
+    <script>
+        // Redirect to new track page
+        window.location.href = 'track.html';
+    </script>
+</head>
+<body>
+    <p>Redirecting to tracking page...</p>
+</body>
+</html>
+            <h3>Tracking Details for <span id="result-tracking-number"></span></h3>
+            <div id="tracking-result">
+                <div class="status-summary">
+                    <h4>Current Status: <span id="current-status"></span></h4>
+                    <p><strong>Location:</strong> <span id="current-location"></span></p>
+                    <p><strong>Estimated Delivery:</strong> <span id="estimated-delivery"></span></p>
+                </div>
+                <div id="map"></div>
+                <div class="history">
+                    <h4>Shipment History</h4>
+                    <ul id="shipment-history">
+                        <!-- History items will be populated by JS -->
+                    </ul>
+                </div>
+            </div>
+            <div id="error-message" class="hidden">
+                <p>Tracking number not found. Please check the number and try again.</p>
+            </div>
+        </section>
+    </main>
+    <div id="server-status" class="server-status">
+        <span class="status-indicator"></span>
+        <span class="status-text">Checking server...</span>
+    </div>
+    <footer>
+        <p>&copy; 2025 Smart Courier System (SCS). All rights reserved.</p>
+        <div style="margin-top: 12px; font-size: 0.9em; opacity: 0.9;">
+            <a href="landing.html">Home</a> | 
+            <a href="index.html">Track</a> | 
+            <a href="order-delivery.html">Order</a> | 
+            <a href="about.html">About</a> | 
+            <a href="contact.html">Contact</a>
+        </div>
+    </footer>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html>

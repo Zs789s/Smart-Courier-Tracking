@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Smart Courier System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .about-hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .about-hero h1 {
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+
+        .about-hero p {
+            font-size: 18px;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .about-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .about-section {
+            margin-bottom: 60px;
+        }
+
+        .about-section h2 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .about-section p {
+            color: #555;
+            line-height: 1.8;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .team-member {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .team-member-avatar {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+        }
+
+        .team-member-info {
+            padding: 20px;
+        }
+
+        .team-member-info h3 {
+            margin: 10px 0 5px 0;
+            color: #333;
+        }
+
+        .team-member-info p {
+            margin: 0;
+            color: #667eea;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .team-member-info .bio {
+            color: #666;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .value-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            text-align: center;
+        }
+
+        .value-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .value-card p {
+            color: #555;
+            font-size: 14px;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-item {
+            margin-bottom: 30px;
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            background: #667eea;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px #667eea;
+        }
+
+        .timeline-item h4 {
+            color: #667eea;
+            margin: 0 0 5px 0;
+            font-weight: 600;
+        }
+
+        .timeline-item p {
+            margin: 0;
+            color: #555;
+        }
+
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .achievement {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .achievement-number {
+            font-size: 32px;
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        .achievement-label {
+            color: #555;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .about-hero h1 {
+                font-size: 28px;
+            }
+
+            .about-section h2 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="landing.html" class="logo">🚀 SCS</a>
+            <ul>
+                <li><a href="landing.html">Home</a></li>
+                <li><a href="landing.html#features">Features</a></li>
+                <li><a href="track.html">Track</a></li>
+                <li><a href="order-delivery.html">Order</a></li>
+                <li><a href="owner.html">Manage</a></li>
+                <li><a href="about.html" class="active">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="signup.html" class="button">Sign Up</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="about-hero">
+        <h1>About Smart Courier System</h1>
+        <p>Revolutionizing the delivery industry with technology, transparency, and reliability</p>
+    </section>
+
+    <main>
+        <div class="about-container">
+            <!-- Our Story -->
+            <section class="about-section">
+                <h2>📖 Our Story</h2>
+                <p>
+                    Smart Courier System (SCS) was founded in 2024 by a team of logistics and technology enthusiasts who recognized a gap in the delivery market. Traditional courier services lacked transparency and real-time tracking capabilities that modern customers demanded.
+                </p>
+                <p>
+                    We set out to create a courier service that combines cutting-edge technology with reliable delivery operations. Today, SCS has grown to become one of the fastest-growing delivery startups, trusted by thousands of customers and businesses across the country.
+                </p>
+                <p>
+                    Our mission is simple: Make delivery fast, transparent, and accessible to everyone.
+                </p>
+            </section>
+
+            <!-- Mission & Vision -->
+            <section class="about-section">
+                <h2>🎯 Mission & Vision</h2>
+                <div class="values-grid">
+                    <div class="value-card">
+                        <h3>Our Mission</h3>
+                        <p>To provide fast, reliable, and transparent delivery solutions that empower businesses and satisfy customers</p>
+                    </div>
+                    <div class="value-card">
+                        <h3>Our Vision</h3>
+                        <p>To become the leading delivery platform in the region with the most advanced tracking and logistics technology</p>
+                    </div>
+                    <div class="value-card">
+                        <h3>Our Values</h3>
+                        <p>Integrity, Innovation, Customer-First, Reliability, and Sustainability in everything we do</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Key Achievements -->
+            <section class="about-section">
+                <h2>🏆 Key Achievements</h2>
+                <div class="achievements-grid">
+                    <div class="achievement">
+                        <div class="achievement-number">10K+</div>
+                        <div class="achievement-label">Packages Delivered</div>
+                    </div>
+                    <div class="achievement">
+                        <div class="achievement-number">50+</div>
+                        <div class="achievement-label">Cities Covered</div>
+                    </div>
+                    <div class="achievement">
+                        <div class="achievement-number">98%</div>
+                        <div class="achievement-label">On-Time Delivery Rate</div>
+                    </div>
+                    <div class="achievement">
+                        <div class="achievement-number">4.9/5</div>
+                        <div class="achievement-label">Average Customer Rating</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Journey Timeline -->
+            <section class="about-section">
+                <h2>📅 Our Journey</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <h4>January 2024</h4>
+                        <p>SCS founded with a team of 3 co-founders and a vision to revolutionize delivery</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h4>March 2024</h4>
+                        <p>Launched in 5 major cities with real-time GPS tracking system</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h4>June 2024</h4>
+                        <p>Reached 1,000 successful deliveries and expanded to 20 cities</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h4>August 2024</h4>
+                        <p>Introduced drone delivery service in select urban areas</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h4>October 2024</h4>
+                        <p>Expanded team to 50+ employees and launched customer mobile app</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h4>November 2024</h4>
+                        <p>Reached 10,000+ deliveries milestone and launched web platform for businesses</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Leadership Team -->
+            <section class="about-section">
+                <h2>👥 Leadership Team</h2>
+                <div class="team-grid">
+                    <div class="team-member">
+                        <div class="team-member-avatar">👨‍💼</div>
+                        <div class="team-member-info">
+                            <h3>Ahmed Hassan</h3>
+                            <p>Co-Founder & CEO</p>
+                            <p class="bio">10+ years experience in logistics and supply chain management</p>
+                        </div>
+                    </div>
+                    <div class="team-member">
+                        <div class="team-member-avatar">👩‍💻</div>
+                        <div class="team-member-info">
+                            <h3>Sarah Johnson</h3>
+                            <p>Co-Founder & CTO</p>
+                            <p class="bio">Tech entrepreneur with expertise in GPS tracking and mapping</p>
+                        </div>
+                    </div>
+                    <div class="team-member">
+                        <div class="team-member-avatar">👨‍🔧</div>
+                        <div class="team-member-info">
+                            <h3>Muhammad Ali</h3>
+                            <p>Co-Founder & Operations</p>
+                            <p class="bio">Former fleet manager with extensive field operations knowledge</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Why Choose Us -->
+            <section class="about-section">
+                <h2>💡 Why Choose SCS?</h2>
+                <div class="values-grid">
+                    <div class="value-card">
+                        <h3>🚀 Innovation First</h3>
+                        <p>We leverage latest technology for better tracking, faster delivery, and improved customer experience</p>
+                    </div>
+                    <div class="value-card">
+                        <h3>🤝 Customer Centric</h3>
+                        <p>Your satisfaction is our priority. 24/7 support and transparent communication</p>
+                    </div>
+                    <div class="value-card">
+                        <h3>💚 Sustainable</h3>
+                        <p>Eco-friendly delivery options and carbon offset programs for conscious customers</p>
+                    </div>
+                    <div class="value-card">
+                        <h3>📈 Growth Partner</h3>
+                        <p>Whether you're a small business or enterprise, we scale with you</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Call to Action -->
+            <section class="about-section" style="text-align: center; background: #f8f9fa; padding: 40px; border-radius: 8px;">
+                <h2>Ready to Experience Modern Delivery?</h2>
+                <p>Join thousands of satisfied customers and businesses who trust SCS for their delivery needs.</p>
+                <div style="margin-top: 30px;">
+                    <a href="signup.html" style="
+                        display: inline-block;
+                        background: #667eea;
+                        color: white;
+                        padding: 12px 30px;
+                        border-radius: 5px;
+                        text-decoration: none;
+                        font-weight: 600;
+                        margin: 0 10px;
+                    ">Create Account Free</a>
+                    <a href="order-delivery.html" style="
+                        display: inline-block;
+                        background: white;
+                        color: #667eea;
+                        padding: 12px 30px;
+                        border: 2px solid #667eea;
+                        border-radius: 5px;
+                        text-decoration: none;
+                        font-weight: 600;
+                        margin: 0 10px;
+                    ">Place Order Now</a>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Smart Courier System (SCS). All rights reserved.</p>
+        <div style="margin-top: 12px; font-size: 0.9em; opacity: 0.9;">
+            <a href="landing.html">Home</a> | 
+            <a href="index.html">Track</a> | 
+            <a href="order-delivery.html">Order</a> | 
+            <a href="about.html">About</a> | 
+            <a href="contact.html">Contact</a>
+        </div>
+    </footer>
+</body>
+</html>

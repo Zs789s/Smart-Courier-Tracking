@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Owner Dashboard - Smart Courier</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .container { max-width: 1100px; margin: 40px auto; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background: #f4f6f8; }
+        .small { font-size: 0.9em; color: #666; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="../index.html" class="logo">SCS</a>
+            <ul>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="user.html">User</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="owner.html">Owner</a></li>
+                <li><a href="#" id="logout-button">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            <h1>Owner Dashboard</h1>
+            <p class="small">This page displays users and their associated orders from <code>orders.json</code>.</p>
+
+            <section id="users-section">
+                <h2>Users and Their Orders</h2>
+                <div id="no-data" class="hidden">No data found. Please run the backend exporter.</div>
+                <div id="users-container"></div>
+            </section>
+        </div>
+    </main>
+
+    <script src="js/owner.js"></script>
+</body>
+</html>

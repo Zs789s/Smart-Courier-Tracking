@@ -1,0 +1,130 @@
+.owner-main {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: calc(100vh - 160px); /* Adjust based on header/footer height */
+    padding: 20px;
+    background-color: #f4f7f6;
+}
+
+.owner-container {
+    background: #fff;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 900px;
+    text-align: left;
+}
+
+.owner-container h2 {
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
+
+.owner-container h3 {
+    margin-top: 30px;
+    margin-bottom: 15px;
+    color: #007BFF;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 5px;
+}
+
+#order-management, #user-management {
+    margin-bottom: 30px;
+}
+
+.order-item, .user-item {
+    background: #fdfdfd;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-item p, .user-item p {
+    margin: 0;
+    color: #555;
+}
+
+.order-item span, .user-item span {
+    font-weight: bold;
+    color: #333;
+}
+
+.order-item button, .user-item button {
+    background: #dc3545;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.order-item button:hover, .user-item button:hover {
+    background: #c82333;
+}
+
+.server-status {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.status-indicator.online {
+    background-color: #27ae60;
+}
+
+.status-indicator.offline {
+    background-color: #d63031;
+}
+
+/* Modal styles */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 2000;
+}
+.modal-card {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.2);
+    z-index: 2001;
+    width: 320px;
+}
+.modal-card h3 { margin-top: 0; }
+.modal-card label { display:block; margin:8px 0; font-size:13px; }
+.modal-card input { width:100%; padding:8px; border-radius:6px; border:1px solid #ddd; }
+.modal-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+.modal-actions button { padding:8px 12px; border-radius:6px; border:none; cursor:pointer; }
+.modal-actions #modal-save { background:#28a745; color:#fff; }
+.modal-actions #modal-cancel { background:#6c757d; color:#fff; }
+
+#owner-edit-modal { display:none; }

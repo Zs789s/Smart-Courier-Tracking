@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Order Management - Smart Courier System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .management-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .section {
+            background: white;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-grid.full {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #764ba2;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+            display: block;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+            display: block;
+        }
+
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+            display: block;
+        }
+
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .order-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            position: relative;
+        }
+
+        .order-card h3 {
+            margin: 0 0 10px 0;
+            color: #667eea;
+        }
+
+        .order-card p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .order-card strong {
+            color: #333;
+        }
+
+        .order-card .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-in-transit {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-delivered {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .order-card .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .order-card .actions button {
+            flex: 1;
+            padding: 8px;
+            font-size: 12px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .orders-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .orders-empty {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="landing.html" class="logo">🚀 SCS</a>
+            <ul>
+                <li><a href="landing.html">Home</a></li>
+                <li><a href="landing.html#features">Features</a></li>
+                <li><a href="track.html">Track</a></li>
+                <li><a href="order-delivery.html">Order</a></li>
+                <li><a href="owner.html" class="active">Manage</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="signup.html" class="button">Sign Up</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="management-container">
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab('create')">➕ Create Order</button>
+                <button class="tab-btn" onclick="switchTab('view')">📦 View All Orders</button>
+            </div>
+
+            <!-- CREATE ORDER SECTION -->
+            <div id="create-tab" class="tab-content active">
+                <div class="section">
+                    <h2>➕ Create New Order Manually</h2>
+                    
+                    <div id="create-message" class="message"></div>
+
+                    <form id="manual-order-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="tracking-number">Tracking Number *</label>
+                                <input type="text" id="tracking-number" placeholder="e.g., SCS12345" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="status">Status *</label>
+                                <select id="status" required>
+                                    <option value="Shipment Created">Shipment Created</option>
+                                    <option value="Package Processed">Package Processed</option>
+                                    <option value="In Transit">In Transit</option>
+                                    <option value="Out for Delivery">Out for Delivery</option>
+                                    <option value="Delivered">Delivered</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="sender-name">Sender Name *</label>
+                                <input type="text" id="sender-name" placeholder="e.g., John Doe" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="receiver-name">Receiver Name *</label>
+                                <input type="text" id="receiver-name" placeholder="e.g., Jane Smith" required>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="sender-address">Sender Address *</label>
+                                <input type="text" id="sender-address" placeholder="e.g., 123 Main St, City A" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="receiver-address">Receiver Address *</label>
+                                <input type="text" id="receiver-address" placeholder="e.g., 456 Oak Ave, City B" required>
+                            </div>
+                        </div>
+
+                        <div class="form-grid full">
+                            <div class="form-group">
+                                <label for="parcel-description">Parcel Description *</label>
+                                <textarea id="parcel-description" placeholder="Describe the parcel contents..." required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="service">Service Type *</label>
+                                <select id="service" required>
+                                    <option value="Standard">Standard Delivery</option>
+                                    <option value="Express">Express Delivery</option>
+                                    <option value="Intercity">Person to Person Inter-City</option>
+                                    <option value="Drone">Drone Delivery</option>
+                                    <option value="Within-City">Person to Person Within-City</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="weight">Weight (kg) *</label>
+                                <input type="number" id="weight" step="0.1" placeholder="2.5" value="2.5" required>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="location">Current Location *</label>
+                                <input type="text" id="location" placeholder="e.g., City A Hub" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="carrier">Carrier *</label>
+                                <input type="text" id="carrier" placeholder="e.g., SCS Logistics" value="SCS Logistics" required>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="latitude">Latitude *</label>
+                                <input type="number" id="latitude" step="0.0001" placeholder="40.7128" value="40.7128" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="longitude">Longitude *</label>
+                                <input type="number" id="longitude" step="0.0001" placeholder="-74.0060" value="-74.0060" required>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="estimated-delivery">Estimated Delivery Date *</label>
+                                <input type="date" id="estimated-delivery" required>
+                            </div>
+                        </div>
+
+                        <div class="button-group">
+                            <button type="submit" class="btn btn-primary">✓ Create Order</button>
+                            <button type="reset" class="btn btn-secondary">🔄 Clear Form</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- VIEW ORDERS SECTION -->
+            <div id="view-tab" class="tab-content">
+                <div class="section">
+                    <h2>📦 All Orders in Database</h2>
+                    
+                    <div class="search-box">
+                        <input type="text" id="search-input" placeholder="Search by tracking number or sender name...">
+                        <button class="btn btn-primary" onclick="loadAllOrders()">🔄 Refresh</button>
+                    </div>
+
+                    <div class="orders-list" id="orders-container">
+                        <div class="orders-empty">Loading orders...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Order</h2>
+                <button class="close-btn" onclick="closeEditModal()">&times;</button>
+            </div>
+            <form id="edit-order-form">
+                <input type="hidden" id="edit-order-id">
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="edit-tracking-number">Tracking Number</label>
+                        <input type="text" id="edit-tracking-number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-status">Status</label>
+                        <select id="edit-status" required>
+                            <option value="Shipment Created">Shipment Created</option>
+                            <option value="Package Processed">Package Processed</option>
+                            <option value="In Transit">In Transit</option>
+                            <option value="Out for Delivery">Out for Delivery</option>
+                            <option value="Delivered">Delivered</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="edit-location">Current Location</label>
+                        <input type="text" id="edit-location" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-weight">Weight (kg)</label>
+                        <input type="number" id="edit-weight" step="0.1" required>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="edit-latitude">Latitude</label>
+                        <input type="number" id="edit-latitude" step="0.0001" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-longitude">Longitude</label>
+                        <input type="number" id="edit-longitude" step="0.0001" required>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn btn-success">✓ Save Changes</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Smart Courier System (SCS). All rights reserved.</p>
+        <div style="margin-top: 12px; font-size: 0.9em; opacity: 0.9;">
+            <a href="landing.html">Home</a> | 
+            <a href="index.html">Track</a> | 
+            <a href="order-delivery.html">Order</a> | 
+            <a href="about.html">About</a> | 
+            <a href="contact.html">Contact</a>
+        </div>
+    </footer>
+
+    <script>
+        // Set default date to 3 days from now
+        function setDefaultDate() {
+            const date = new Date();
+            date.setDate(date.getDate() + 3);
+            document.getElementById('estimated-delivery').valueAsDate = date;
+        }
+
+        // Tab switching
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tab + '-tab').classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tab === 'view') {
+                loadAllOrders();
+            }
+        }
+
+        // Show message
+        function showMessage(containerId, text, type = 'success') {
+            const messageDiv = document.getElementById(containerId);
+            messageDiv.textContent = text;
+            messageDiv.className = 'message ' + type;
+            if (type === 'success') {
+                setTimeout(() => {
+                    messageDiv.className = 'message';
+                }, 5000);
+            }
+        }
+
+        // Create order
+        document.getElementById('manual-order-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const orderData = {
+                trackingNumber: document.getElementById('tracking-number').value,
+                tracking_number: document.getElementById('tracking-number').value,
+                sender_name: document.getElementById('sender-name').value,
+                receiver_name: document.getElementById('receiver-name').value,
+                sender_address: document.getElementById('sender-address').value,
+                receiver_address: document.getElementById('receiver-address').value,
+                parcel_description: document.getElementById('parcel-description').value,
+                service: document.getElementById('service').value,
+                weight: parseFloat(document.getElementById('weight').value),
+                carrier: document.getElementById('carrier').value,
+                status: document.getElementById('status').value,
+                location: document.getElementById('location').value,
+                latitude: parseFloat(document.getElementById('latitude').value),
+                longitude: parseFloat(document.getElementById('longitude').value),
+                estimated_delivery: document.getElementById('estimated-delivery').value,
+                history: [
+                    {
+                        status: document.getElementById('status').value,
+                        location: document.getElementById('location').value,
+                        date: new Date().toISOString().split('T')[0]
+                    }
+                ]
+            };
+
+            try {
+                const response = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+
+                if (response.ok) {
+                    showMessage('create-message', `✓ Order ${orderData.trackingNumber} created successfully!`, 'success');
+                    this.reset();
+                    setDefaultDate();
+                } else {
+                    showMessage('create-message', 'Error creating order', 'error');
+                }
+            } catch (error) {
+                console.error(error);
+                showMessage('create-message', 'Network error: ' + error.message, 'error');
+            }
+        });
+
+        // Load all orders
+        async function loadAllOrders() {
+            try {
+                const response = await fetch('/api/orders');
+                const orders = await response.json();
+                displayOrders(orders);
+            } catch (error) {
+                console.error(error);
+                document.getElementById('orders-container').innerHTML = '<div class="orders-empty">Error loading orders</div>';
+            }
+        }
+
+        // Display orders
+        function displayOrders(orders) {
+            const searchTerm = document.getElementById('search-input')?.value.toLowerCase() || '';
+            const filtered = orders.filter(o => 
+                (o.trackingNumber || o.tracking_number || '').toLowerCase().includes(searchTerm) ||
+                (o.sender_name || '').toLowerCase().includes(searchTerm)
+            );
+
+            if (!filtered || filtered.length === 0) {
+                document.getElementById('orders-container').innerHTML = '<div class="orders-empty">No orders found</div>';
+                return;
+            }
+
+            document.getElementById('orders-container').innerHTML = filtered.map(order => `
+                <div class="order-card">
+                    <h3>${order.trackingNumber || order.tracking_number || 'N/A'}</h3>
+                    <p><strong>From:</strong> ${order.sender_name || 'N/A'}</p>
+                    <p><strong>To:</strong> ${order.receiver_name || 'N/A'}</p>
+                    <p><strong>Status:</strong> <span class="status status-${(order.status || '').toLowerCase().replace(/\s+/g, '-')}">${order.status || 'N/A'}</span></p>
+                    <p><strong>Location:</strong> ${order.location || 'N/A'}</p>
+                    <p><strong>Service:</strong> ${order.service || 'N/A'}</p>
+                    <p><strong>Est. Delivery:</strong> ${order.estimated_delivery || 'N/A'}</p>
+                    <div class="actions">
+                        <button class="btn btn-primary" onclick="openEditModal('${order.id}')">✏️ Edit</button>
+                        <button class="btn btn-danger" onclick="deleteOrder('${order.id}')">🗑️ Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Open edit modal
+        async function openEditModal(orderId) {
+            const response = await fetch(`/api/orders`);
+            const orders = await response.json();
+            const order = orders.find(o => o.id === orderId);
+
+            if (!order) {
+                alert('Order not found');
+                return;
+            }
+
+            document.getElementById('edit-order-id').value = order.id;
+            document.getElementById('edit-tracking-number').value = order.trackingNumber || order.tracking_number || '';
+            document.getElementById('edit-status').value = order.status || '';
+            document.getElementById('edit-location').value = order.location || '';
+            document.getElementById('edit-weight').value = order.weight || '';
+            document.getElementById('edit-latitude').value = order.latitude || '';
+            document.getElementById('edit-longitude').value = order.longitude || '';
+
+            document.getElementById('edit-modal').classList.add('show');
+        }
+
+        // Close edit modal
+        function closeEditModal() {
+            document.getElementById('edit-modal').classList.remove('show');
+        }
+
+        // Save edited order
+        document.getElementById('edit-order-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const orderId = document.getElementById('edit-order-id').value;
+            const updateData = {
+                trackingNumber: document.getElementById('edit-tracking-number').value,
+                status: document.getElementById('edit-status').value,
+                location: document.getElementById('edit-location').value,
+                weight: parseFloat(document.getElementById('edit-weight').value),
+                latitude: parseFloat(document.getElementById('edit-latitude').value),
+                longitude: parseFloat(document.getElementById('edit-longitude').value)
+            };
+
+            try {
+                const response = await fetch(`/api/orders/${orderId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updateData)
+                });
+
+                if (response.ok) {
+                    alert('Order updated successfully');
+                    closeEditModal();
+                    loadAllOrders();
+                } else {
+                    alert('Error updating order');
+                }
+            } catch (error) {
+                alert('Network error: ' + error.message);
+            }
+        });
+
+        // Delete order
+        async function deleteOrder(orderId) {
+            if (!confirm('Are you sure you want to delete this order?')) return;
+
+            try {
+                const response = await fetch(`/api/orders/${orderId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('Order deleted successfully');
+                    loadAllOrders();
+                } else {
+                    alert('Error deleting order');
+                }
+            } catch (error) {
+                alert('Network error: ' + error.message);
+            }
+        }
+
+        // Search functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            setDefaultDate();
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('keyup', async function() {
+                    const response = await fetch('/api/orders');
+                    const orders = await response.json();
+                    displayOrders(orders);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

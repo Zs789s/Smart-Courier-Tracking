@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Dashboard - Smart Courier System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/owner.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #owner-map { height: 300px; width: 100%; margin-top: 15px; border-radius: 6px; }
+        .owner-toolbar { display:flex; gap:10px; align-items:center; margin:12px 0; }
+        .owner-toolbar input[type="search"] { flex:1; padding:8px 10px; border-radius:6px; border:1px solid #ddd; }
+        .owner-toolbar button { padding:8px 12px; border-radius:6px; background:#007BFF; color:#fff; border:none; cursor:pointer; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="landing.html" class="logo">🚀 SCS</a>
+            <ul>
+                <li><a href="landing.html">Home</a></li>
+                <li><a href="landing.html#features">Features</a></li>
+                <li><a href="track.html">Track</a></li>
+                <li><a href="order-delivery.html">Order</a></li>
+                <li><a href="owner.html" class="active">Manage</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="signup.html" class="button">Sign Up</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main class="owner-main">
+        <div class="owner-container">
+            <h2>Owner Dashboard</h2>
+            <p>Welcome to the owner dashboard. Here you can manage orders, users, and system settings.</p>
+            
+            <section id="order-management">
+                <h3>Order Management</h3>
+                <div class="owner-toolbar">
+                    <input type="search" id="order-search" placeholder="Search by tracking number, status or location">
+                    <button id="refresh-orders">Refresh</button>
+                    <button id="create-order">New Order</button>
+                </div>
+                <div id="orders-list">
+                    <!-- Orders will be loaded here by JavaScript -->
+                    <p>Loading orders...</p>
+                </div>
+                <div id="owner-map"></div>
+            </section>
+
+            <section id="user-management">
+                <h3>User Management</h3>
+                <div id="users-list">
+                    <!-- Users will be loaded here by JavaScript -->
+                    <p>Loading users...</p>
+                </div>
+            </section>
+        </div>
+    </main>
+    <div id="server-status" class="server-status">
+        <span class="status-indicator"></span>
+        <span class="status-text">Checking server...</span>
+    </div>
+    <footer>
+        <p>&copy; 2025 Smart Courier System (SCS). All rights reserved.</p>
+        <div style="margin-top: 12px; font-size: 0.9em; opacity: 0.9;">
+            <a href="landing.html">Home</a> | 
+            <a href="index.html">Track</a> | 
+            <a href="order-delivery.html">Order</a> | 
+            <a href="about.html">About</a> | 
+            <a href="contact.html">Contact</a>
+        </div>
+    </footer>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/owner.js"></script>
+</body>
+</html>
