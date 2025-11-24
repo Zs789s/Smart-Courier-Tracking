@@ -1,0 +1,150 @@
+<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="carGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#E63946;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#DC143C;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#A4161A;stop-opacity:1" />
+    </linearGradient>
+
+    <linearGradient id="wheelGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#333333;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a1a1a;stop-opacity:1" />
+    </linearGradient>
+
+    <radialGradient id="windowGradient" cx="50%" cy="30%">
+      <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#4169E1;stop-opacity:0.6" />
+    </radialGradient>
+
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity="0.35"/>
+    </filter>
+
+    <filter id="shine">
+      <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Car body (sleek sports car profile) -->
+  <g filter="url(#shadow)">
+    <!-- Main body shape -->
+    <path d="M 50 130 L 60 100 L 80 85 L 160 85 L 190 100 L 200 130 Z" 
+          fill="url(#carGradient)" stroke="#8B0000" stroke-width="1.5"/>
+    
+    <!-- Rear bumper/spoiler area -->
+    <path d="M 50 130 L 55 145 L 65 150 L 65 130 Z" 
+          fill="#A4161A" stroke="#8B0000" stroke-width="1"/>
+    
+    <!-- Front bumper area -->
+    <path d="M 200 130 L 205 140 L 200 150 L 190 140 Z" 
+          fill="#8B0000" stroke="#660000" stroke-width="1"/>
+  </g>
+
+  <!-- Windshield (front window) -->
+  <path d="M 140 85 L 165 90 L 160 120 L 140 115 Z" 
+        fill="url(#windowGradient)" opacity="0.7" stroke="#1a1a1a" stroke-width="1"/>
+
+  <!-- Side windows -->
+  <!-- Rear window -->
+  <path d="M 100 100 L 135 95 L 130 125 L 105 120 Z" 
+        fill="url(#windowGradient)" opacity="0.6" stroke="#1a1a1a" stroke-width="0.8"/>
+
+  <!-- Roof -->
+  <path d="M 90 100 L 160 90 L 155 105 L 95 110 Z" 
+        fill="#DC143C" stroke="#8B0000" stroke-width="1"/>
+
+  <!-- Car details line (racing stripe) -->
+  <path d="M 70 105 L 190 95" stroke="#FFD700" stroke-width="2" opacity="0.8" stroke-linecap="round"/>
+
+  <!-- Door line -->
+  <path d="M 110 115 L 110 140" stroke="#8B0000" stroke-width="1.2" opacity="0.6" stroke-linecap="round"/>
+
+  <!-- Headlights -->
+  <!-- Left headlight -->
+  <circle cx="65" cy="118" r="6" fill="#FFFF00" opacity="0.9"/>
+  <circle cx="65" cy="118" r="5" fill="#FFFF99" opacity="0.7"/>
+  
+  <!-- Right headlight -->
+  <circle cx="75" cy="123" r="6" fill="#FFFF00" opacity="0.9"/>
+  <circle cx="75" cy="123" r="5" fill="#FFFF99" opacity="0.7"/>
+
+  <!-- Taillights -->
+  <!-- Left taillight -->
+  <circle cx="190" cy="120" r="5" fill="#FF4500" opacity="0.9"/>
+  <circle cx="190" cy="120" r="4" fill="#FF6347" opacity="0.7"/>
+  
+  <!-- Right taillight -->
+  <circle cx="200" cy="125" r="5" fill="#FF4500" opacity="0.9"/>
+  <circle cx="200" cy="125" r="4" fill="#FF6347" opacity="0.7"/>
+
+  <!-- Front wheel -->
+  <g>
+    <!-- Wheel outer rim -->
+    <circle cx="80" cy="145" r="20" fill="url(#wheelGradient)" stroke="#1a1a1a" stroke-width="2"/>
+    
+    <!-- Tire -->
+    <circle cx="80" cy="145" r="16" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="1"/>
+    
+    <!-- Wheel rim (spokes effect) -->
+    <g stroke="#555555" stroke-width="1" opacity="0.5">
+      <line x1="80" y1="129" x2="80" y2="145"/>
+      <line x1="80" y1="161" x2="80" y2="145"/>
+      <line x1="64" y1="145" x2="80" y2="145"/>
+      <line x1="96" y1="145" x2="80" y2="145"/>
+      <line x1="70" y1="131" x2="80" y2="145"/>
+      <line x1="90" y1="159" x2="80" y2="145"/>
+      <line x1="90" y1="131" x2="80" y2="145"/>
+      <line x1="70" y1="159" x2="80" y2="145"/>
+    </g>
+
+    <!-- Center cap -->
+    <circle cx="80" cy="145" r="3" fill="#FFD700" opacity="0.8"/>
+  </g>
+
+  <!-- Rear wheel -->
+  <g>
+    <!-- Wheel outer rim -->
+    <circle cx="160" cy="145" r="20" fill="url(#wheelGradient)" stroke="#1a1a1a" stroke-width="2"/>
+    
+    <!-- Tire -->
+    <circle cx="160" cy="145" r="16" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="1"/>
+    
+    <!-- Wheel rim (spokes effect) -->
+    <g stroke="#555555" stroke-width="1" opacity="0.5">
+      <line x1="160" y1="129" x2="160" y2="145"/>
+      <line x1="160" y1="161" x2="160" y2="145"/>
+      <line x1="144" y1="145" x2="160" y2="145"/>
+      <line x1="176" y1="145" x2="160" y2="145"/>
+      <line x1="150" y1="131" x2="160" y2="145"/>
+      <line x1="170" y1="159" x2="160" y2="145"/>
+      <line x1="170" y1="131" x2="160" y2="145"/>
+      <line x1="150" y1="159" x2="160" y2="145"/>
+    </g>
+
+    <!-- Center cap -->
+    <circle cx="160" cy="145" r="3" fill="#FFD700" opacity="0.8"/>
+  </g>
+
+  <!-- Ground shadow (motion effect) -->
+  <ellipse cx="120" cy="168" rx="75" ry="8" fill="#000000" opacity="0.15"/>
+
+  <!-- Speed lines (motion) -->
+  <g stroke="#DC143C" stroke-width="1.5" opacity="0.3" stroke-linecap="round">
+    <line x1="40" y1="110" x2="50" y2="108"/>
+    <line x1="35" y1="125" x2="48" y2="125"/>
+    <line x1="38" y1="140" x2="52" y2="142"/>
+  </g>
+
+  <!-- Shine/highlight on car body -->
+  <path d="M 85 95 Q 100 90 140 88" 
+        stroke="#FFFF99" stroke-width="2" fill="none" opacity="0.4" stroke-linecap="round" filter="url(#shine)"/>
+
+  <!-- License plate area -->
+  <rect x="55" y="150" width="25" height="12" fill="#FFD700" stroke="#1a1a1a" stroke-width="1" rx="1"/>
+  <text x="67.5" y="157" font-family="Arial" font-size="6" font-weight="bold" fill="#1a1a1a" text-anchor="middle">SCS</text>
+</svg>

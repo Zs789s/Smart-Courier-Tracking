@@ -1,0 +1,26 @@
+/* Styles for the track page */
+
+#search-type {
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    margin-right: 8px;
+}
+
+#results-loading {
+    display: none;
+}
+
+#phone-results {
+    margin-bottom: 16px;
+}
+
+#result-tracking-number {
+    font-size: 20px;
+    color: #667eea;
+    font-weight: 600;
+    margin: 8px 0 0 0;
+}
+
+.phone-result-item { margin: 8px 0; }
+.phone-result-btn { padding: 8px 12px; border-radius: 6px; background: #f0f0f0; border: 1px solid #ddd; cursor: pointer; }

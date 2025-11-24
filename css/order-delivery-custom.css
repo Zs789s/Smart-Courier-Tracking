@@ -1,0 +1,27 @@
+/* Styles for the order delivery page (moved from inline styles) */
+
+.center {
+	text-align: center;
+}
+
+.mb-15 {
+	margin-bottom: 15px;
+}
+
+.mt-20 {
+	margin-top: 20px;
+}
+
+.list-indent {
+	margin: 10px 0;
+	padding-left: 20px;
+}
+
+.link-accent {
+	color: #667eea;
+	text-decoration: none;
+	font-weight: 600;
+}
+
+/* Page-specific small helpers */
+.tracking-number-display { font-family: monospace; }

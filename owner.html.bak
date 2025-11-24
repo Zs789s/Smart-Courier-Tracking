@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Dashboard - Smart Courier System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/owner.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #owner-map { height: 300px; width: 100%; margin-top: 15px; border-radius: 6px; }
+        .owner-toolbar { display:flex; gap:10px; align-items:center; margin:12px 0; }
+        .owner-toolbar input[type="search"] { flex:1; padding:8px 10px; border-radius:6px; border:1px solid #ddd; }
+        .owner-toolbar button { padding:8px 12px; border-radius:6px; background:#007BFF; color:#fff; border:none; cursor:pointer; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="landing.html" class="logo">🚀 SCS</a>
+            <ul>
+                <li><a href="landing.html">Home</a></li>
+                <li><a href="landing.html#features">Features</a></li>
+                <li><a href="track.html">Track</a></li>
+                <li><a href="order-delivery.html">Order</a></li>
+                <li><a href="owner.html" class="active">Manage</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                
+            </ul>
+        </nav>
+    </header>
+    <!-- Auth verification UI -->
+    <div id="auth-loading" class="auth-loading">Verifying access — please wait…</div>
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Owner Dashboard — Smart Courier System</title>
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/owner.css">
+        <style>
+            /* Minimal page-scoped styles to ensure clarity if owner.css is missing */
+            .hidden{display:none!important}
+            .auth-loading{padding:30px;text-align:center;color:#667eea}
+            .logout-btn{background:transparent;border:1px solid #667eea;color:#667eea;padding:8px 12px;border-radius:6px;cursor:pointer}
+            .container{max-width:1100px;margin:28px auto;padding:0 20px}
+        </style>
+    </head>
+    <body>
+        <header>
+            <nav>
+                <a href="landing.html" class="logo">🚀 SCS</a>
+                <ul>
+                    <li><a href="landing.html">Home</a></li>
+                    <li><a href="track.html">Track</a></li>
+                    <li><a href="order-delivery.html">Order</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main class="container">
+            <div id="auth-loading" class="auth-loading">Verifying access...</div>
+
+            <div id="owner-app" class="hidden">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <h1>Owner Dashboard</h1>
+                    <div>
+                        <span id="owner-ident" style="margin-right:12px"></span>
+                        <button id="logout" class="logout-btn">Logout</button>
+                    </div>
+                </div>
+
+                <section id="owner-controls">
+                    <h2>Your Orders</h2>
+                    <div id="orders-list">(orders will appear here)</div>
+                </section>
+            </div>
+        </main>
+
+        <script>
+            // Minimal client-side auth check: uses token from localStorage to call /api/me
+            async function verifyAccess() {
+                const token = localStorage.getItem('token');
+                if (!token) return window.location = 'owner-login.html';
+
+                try {
+                    const resp = await fetch('/api/me', { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' } });
+                    if (!resp.ok) {
+                        localStorage.removeItem('token');
+                        return window.location = 'owner-login.html';
+                    }
+                    const me = await resp.json();
+                    document.getElementById('owner-ident').textContent = `${me.username} (ID: ${me.id})`;
+                    document.getElementById('auth-loading').classList.add('hidden');
+                    document.getElementById('owner-app').classList.remove('hidden');
+
+                    // Optionally, fetch and show owner orders (if an endpoint exists)
+                    try {
+                        const ownOrders = await fetch('/api/orders', { headers: { 'Authorization': 'Bearer ' + token } });
+                        if (ownOrders.ok) {
+                            const json = await ownOrders.json();
+                            const list = json.orders || [];
+                            const container = document.getElementById('orders-list');
+                            if (list.length === 0) container.textContent = 'No orders yet.';
+                            else container.innerHTML = list.map(o => `<div style="padding:8px;border-bottom:1px solid #eee"><strong>${o.tracking_number || o.trackingNumber}</strong> — ${o.status}</div>`).join('');
+                        }
+                    } catch (err) {
+                        console.warn('Could not load orders', err);
+                    }
+                } catch (err) {
+                    console.error('Auth check failed', err);
+                    localStorage.removeItem('token');
+                    window.location = 'owner-login.html';
+                }
+            }
+
+            document.getElementById('logout').addEventListener('click', () => {
+                localStorage.removeItem('token');
+                window.location = 'owner-login.html';
+            });
+
+            verifyAccess();
+        </script>
+    </body>
+    </html>
+                    // Show owner unique id/username in header
+                    const nav = document.querySelector('nav');
+                    if (nav) {
+                        let ownerInfo = document.getElementById('owner-info');
+                        if (!ownerInfo) {
+                            ownerInfo = document.createElement('div');
+                            ownerInfo.id = 'owner-info';
+                            ownerInfo.style.marginLeft = '12px';
+                            ownerInfo.style.fontSize = '0.9em';
+                            ownerInfo.style.color = '#333';
+                            nav.appendChild(ownerInfo);
+                        }
+                        ownerInfo.textContent = `Owner: ${user.username} (ID: ${user.id})`;
+                    }
+
+                    // Add a visible logout button in the header (if not present)
+                    let logoutBtn = document.getElementById('logout-btn');
+                    if (!logoutBtn) {
+                        logoutBtn = document.createElement('button');
+                        logoutBtn.id = 'logout-btn';
+                        logoutBtn.className = 'logout-btn';
+                        logoutBtn.textContent = 'Logout';
+                        const nav = document.querySelector('nav');
+                        if (nav) nav.appendChild(logoutBtn);
+                    } else {
+                        logoutBtn.classList.remove('hidden');
+                    }
+
+                    logoutBtn.addEventListener('click', () => {
+                        localStorage.removeItem('token');
+                        window.location.href = 'login.html';
+                    });
+
+                    // Dynamically load owner.js now that auth is verified
+                    const s = document.createElement('script');
+                    s.src = 'js/owner.js';
+                    document.body.appendChild(s);
+                })
+                .catch(err => {
+                    console.error('Access verification error', err);
+                    localStorage.removeItem('token');
+                    window.location.href = 'login.html';
+                });
+        })();
+    </script>
+</body>
+</html>

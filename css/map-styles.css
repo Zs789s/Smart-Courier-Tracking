@@ -1,0 +1,28 @@
+.map-section {
+    margin-top: 20px;
+    margin-bottom: 30px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #fcfcfc;
+}
+
+.map-section h2 {
+    font-size: 1.2em;
+    color: #667eea;
+    margin-bottom: 15px;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.map-container {
+    width: 100%;
+    height: 300px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.form-group.map-coords {
+    margin-top: 15px;
+}

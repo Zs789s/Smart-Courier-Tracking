@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - Smart Courier System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .container { max-width: 1100px; margin: 40px auto; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background: #f4f6f8; }
+        .small { font-size: 0.9em; color: #666; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html" class="logo">SCS</a>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="track.html">Track</a></li>
+                <li><a href="order-delivery.html">Order</a></li>
+                <li><a href="user.html" class="active">User</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="auth-loading" class="auth-loading">Verifying access — please wait…</div>
+
+    <main class="user-main">
+        <div class="container hidden" id="user-protected">
+            <h1>User Dashboard</h1>
+            <p class="small">This page shows orders associated with the logged-in user.</p>
+
+            <section id="user-orders-section">
+                <h2>My Orders</h2>
+                <div id="no-user-orders" class="hidden">No orders found for this user.</div>
+                <table id="user-orders-table" class="hidden">
+                    <thead>
+                        <tr>
+                            <th>Tracking #</th>
+                            <th>Service</th>
+                            <th>Status</th>
+                            <th>Location</th>
+                            <th>Estimated Delivery</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Smart Courier System (SCS). All rights reserved.</p>
+    </footer>
+
+    <script>
+        (function verifyAccess() {
+            const token = localStorage.getItem('token');
+            if (!token) return window.location.href = 'login.html';
+
+            fetch('/api/myorders', { headers: { 'Authorization': `Bearer ${token}` } })
+                .then(res => {
+                    if (res.status === 401 || res.status === 403) {
+                        localStorage.removeItem('token');
+                        return window.location.href = 'login.html';
+                    }
+                    if (!res.ok) throw new Error('Verification failed');
+                    return res.json();
+                })
+                .then(data => {
+                    // Show UI and load client code
+                    const loading = document.getElementById('auth-loading');
+                    if (loading) loading.parentNode.removeChild(loading);
+                    const protectedEl = document.getElementById('user-protected');
+                    if (protectedEl) protectedEl.classList.remove('hidden');
+
+                    const s = document.createElement('script');
+                    s.src = 'js/user.js';
+                    document.body.appendChild(s);
+                })
+                .catch(err => {
+                    console.error('Access verification error', err);
+                    localStorage.removeItem('token');
+                    window.location.href = 'login.html';
+                });
+        })();
+    </script>
+</body>
+</html>

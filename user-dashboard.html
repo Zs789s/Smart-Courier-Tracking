@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - Smart Courier System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .dashboard-container { max-width: 1200px; margin: 40px auto; padding: 20px; }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .dashboard-header h1 { margin: 0; color: #333; }
+        .user-info {
+            text-align: right;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .user-info p { margin: 4px 0; }
+        .section { margin-bottom: 40px; }
+        .section h2 {
+            color: #667eea;
+            font-size: 20px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background: #f4f6f8; font-weight: 600; }
+        tr:hover { background: #f9f9f9; }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        .status-badge.pending { background: #fff3cd; color: #856404; }
+        .status-badge.in-transit { background: #d1ecf1; color: #0c5460; }
+        .status-badge.delivered { background: #d4edda; color: #155724; }
+        .track-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .track-link:hover { text-decoration: underline; }
+        .no-orders { padding: 30px; text-align: center; color: #999; background: #f9f9f9; border-radius: 6px; }
+        .profile-card { padding: 20px; background: #f9f9f9; border-radius: 6px; }
+        .profile-card p { margin: 8px 0; }
+        .logout-btn-wrapper { margin-top: 15px; }
+        .delete-account-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.95em;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+        .delete-account-btn:hover { background: #c82333; }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        .modal.show { display: block; }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 6px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .modal-header { font-weight: 600; margin-bottom: 10px; color: #333; }
+        .modal-body { margin: 15px 0; color: #666; font-size: 0.95em; line-height: 1.5; }
+        .modal-footer { margin-top: 20px; text-align: right; }
+        .modal-footer button { margin-left: 10px; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
+        .modal-footer .confirm-btn { background: #dc3545; color: white; }
+        .modal-footer .confirm-btn:hover { background: #c82333; }
+        .modal-footer .cancel-btn { background: #e9ecef; color: #333; }
+        .modal-footer .cancel-btn:hover { background: #dee2e6; }
+        .message { padding: 12px; border-radius: 4px; margin-bottom: 10px; }
+        .message.success { background: #d4edda; color: #155724; }
+        .message.error { background: #f8d7da; color: #721c24; }
+        .warning-text { color: #dc3545; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="landing.html" class="logo"><img src="lion-logo.svg" alt="SCS"></a>
+            <ul>
+                <li><a href="landing.html">Home</a></li>
+                <li><a href="landing.html#features">Features</a></li>
+                <li><a href="track.html">Track</a></li>
+                <li><a href="order-delivery.html">Order</a></li>
+                <li><a href="user-dashboard.html" class="active">Dashboard</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Auth verification UI -->
+    <div id="auth-loading" class="auth-loading">Verifying access — please wait…</div>
+
+    <main class="dashboard-container hidden" id="dashboard-protected">
+        <div class="dashboard-header">
+            <h1>📊 User Dashboard</h1>
+            <div class="user-info">
+                <p id="user-name-display">Loading...</p>
+                <p id="user-email-display"></p>
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <section class="section">
+            <h2>👤 Your Profile</h2>
+            <div class="profile-card">
+                <p><strong>Username:</strong> <span id="profile-username">—</span></p>
+                <p><strong>Email:</strong> <span id="profile-email">—</span></p>
+                <p><strong>User ID:</strong> <span id="profile-id">—</span></p>
+                <p class="logout-btn-wrapper">
+                    <button class="logout-btn" id="logout-btn">🚪 Logout</button>
+                    <button class="delete-account-btn" id="delete-account-btn">🗑️ Delete Account</button>
+                </p>
+            </div>
+        </section>
+
+        <!-- Orders Section -->
+        <section class="section">
+            <h2>📦 Your Orders</h2>
+            <div id="no-orders" class="no-orders hidden">
+                You haven't placed any orders yet. <a href="order-delivery.html">Place an order now →</a>
+            </div>
+            <table id="orders-table" class="hidden">
+                <thead>
+                    <tr>
+                        <th>Tracking Number</th>
+                        <th>Service</th>
+                        <th>Status</th>
+                        <th>Location</th>
+                        <th>Est. Delivery</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="orders-tbody"></tbody>
+            </table>
+        </section>
+    </main>
+
+    <!-- Delete Account Modal -->
+    <div id="delete-account-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">⚠️ Delete Account</div>
+            <div id="delete-modal-message"></div>
+            <div class="modal-body">
+                <p>You are about to permanently delete your account. This action cannot be undone.</p>
+                <p>All your profile data and associated information will be removed from the system.</p>
+                <p class="warning-text">Are you sure you want to continue?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="cancel-btn" onclick="closeDeleteAccountModal()">Cancel</button>
+                <button class="confirm-btn" onclick="confirmDeleteAccount()">Yes, Delete My Account</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Smart Courier System (SCS). All rights reserved.</p>
+        <div class="footer-text">
+            <a href="landing.html">Home</a> | 
+            <a href="track.html">Track</a> | 
+            <a href="order-delivery.html">Order</a> | 
+            <a href="about.html">About</a> | 
+            <a href="contact.html">Contact</a>
+        </div>
+    </footer>
+
+    <script>
+        // Verify token with server before loading dashboard / showing sensitive UI
+        (function verifyAccess() {
+            const token = localStorage.getItem('token');
+            if (!token) return window.location.href = 'login.html';
+
+            // Fetch user profile
+            fetch('/api/me', { headers: { 'Authorization': `Bearer ${token}` } })
+                .then(res => {
+                    if (res.status === 401 || res.status === 403) {
+                        localStorage.removeItem('token');
+                        return window.location.href = 'login.html';
+                    }
+                    if (!res.ok) throw new Error('Verification failed');
+                    return res.json();
+                })
+                .then(user => {
+                    // Token verified. Hide loader and show protected UI.
+                    const loading = document.getElementById('auth-loading');
+                    if (loading) loading.parentNode.removeChild(loading);
+                    const protectedEl = document.getElementById('dashboard-protected');
+                    if (protectedEl) protectedEl.classList.remove('hidden');
+
+                    // Populate profile info
+                    document.getElementById('user-name-display').textContent = user.username;
+                    document.getElementById('user-email-display').textContent = `(${user.email})`;
+                    document.getElementById('profile-username').textContent = user.username;
+                    document.getElementById('profile-email').textContent = user.email;
+                    document.getElementById('profile-id').textContent = user.id;
+
+                    // Add logout button
+                    let logoutBtn = document.getElementById('logout-btn');
+                    if (logoutBtn) {
+                        logoutBtn.addEventListener('click', () => {
+                            localStorage.removeItem('token');
+                            window.location.href = 'login.html';
+                        });
+                    }
+
+                    // Add delete account button
+                    let deleteAccountBtn = document.getElementById('delete-account-btn');
+                    if (deleteAccountBtn) {
+                        deleteAccountBtn.addEventListener('click', () => {
+                            document.getElementById('delete-account-modal').classList.add('show');
+                        });
+                    }
+
+                    // Load user's orders
+                    fetch('/api/myorders', { headers: { 'Authorization': `Bearer ${token}` } })
+                        .then(res => res.json())
+                        .then(data => {
+                            const orders = data.orders || [];
+                            if (!orders.length) {
+                                document.getElementById('no-orders').classList.remove('hidden');
+                                return;
+                            }
+                            const tbody = document.getElementById('orders-tbody');
+                            orders.forEach(o => {
+                                const tr = document.createElement('tr');
+                                const statusClass = (o.status || 'pending').toLowerCase().replace(/\s+/g, '-');
+                                tr.innerHTML = `
+                                    <td><strong>${o.tracking_number || o.trackingNumber}</strong></td>
+                                    <td>${o.service || '—'}</td>
+                                    <td><span class="status-badge ${statusClass}">${o.status || 'Pending'}</span></td>
+                                    <td>${o.location || '—'}</td>
+                                    <td>${o.estimated_delivery || '—'}</td>
+                                    <td><a href="track.html?track=${encodeURIComponent(o.tracking_number || o.trackingNumber)}" class="track-link">View →</a></td>
+                                `;
+                                tbody.appendChild(tr);
+                            });
+                            document.getElementById('orders-table').classList.remove('hidden');
+                        })
+                        .catch(err => {
+                            console.error('Error loading orders', err);
+                            document.getElementById('no-orders').classList.remove('hidden');
+                        });
+                })
+                .catch(err => {
+                    console.error('Access verification error', err);
+                    localStorage.removeItem('token');
+                    window.location.href = 'login.html';
+                });
+        })();
+
+        function closeDeleteAccountModal() {
+            document.getElementById('delete-account-modal').classList.remove('show');
+        }
+
+        function confirmDeleteAccount() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                localStorage.removeItem('token');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const messageDiv = document.getElementById('delete-modal-message');
+            messageDiv.innerHTML = '<div class="message">Processing account deletion...</div>';
+
+            fetch('/api/users/delete', {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to delete account');
+                return res.json();
+            })
+            .then(data => {
+                messageDiv.innerHTML = '<div class="message success">✓ Account deleted successfully. Redirecting...</div>';
+                localStorage.removeItem('token');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+            })
+            .catch(err => {
+                console.error('Error deleting account:', err);
+                messageDiv.innerHTML = `<div class="message error">✗ Error: ${err.message || 'Failed to delete account'}</div>`;
+                setTimeout(() => {
+                    closeDeleteAccountModal();
+                }, 3000);
+            });
+        }
+
+        // Close modal when clicking outside of it
+        window.addEventListener('click', (event) => {
+            const modal = document.getElementById('delete-account-modal');
+            if (event.target === modal) {
+                closeDeleteAccountModal();
+            }
+        });
+    </script>
+</body>
+</html>

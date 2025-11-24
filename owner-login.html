@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Login - Smart Courier System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .notification {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            display: none;
+            text-align: center;
+        }
+        .notification.error {
+            background-color: #ffe6e6;
+            color: #d63031;
+            border: 1px solid #ff7675;
+        }
+        .notification.success {
+            background-color: #e6ffe6;
+            color: #27ae60;
+            border: 1px solid #2ecc71;
+        }
+        .server-status {
+            position: fixed;
+            bottom: 60px;
+            right: 20px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .status-indicator.online {
+            background-color: #27ae60;
+        }
+        .status-indicator.offline {
+            background-color: #d63031;
+        }
+        .owner-login-subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="landing.html" class="logo"><img src="lion-logo.svg" alt="SCS"></a>
+            <ul>
+                <li><a href="landing.html">Home</a></li>
+                <li><a href="landing.html#features">Features</a></li>
+                <li><a href="track.html">Track</a></li>
+                <li><a href="order-delivery.html">Order</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="owner-register.html">Owner Register</a></li>
+                <li><a href="owner-login.html" class="active">Owner Login</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main class="login-main">
+        <div class="login-container">
+            <h2>Owner Dashboard Login</h2>
+            <p class="owner-login-subtitle">Access the management dashboard</p>
+            <div id="notification" class="notification"></div>
+            <form id="owner-login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required placeholder="Enter owner username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="login-button">Owner Login</button>
+                <p class="signup-link">Don't have an owner account? <a href="owner-register.html">Create Owner Account</a></p>
+            </form>
+        </div>
+    </main>
+    <div id="server-status" class="server-status">
+        <span class="status-indicator"></span>
+        <span class="status-text">Checking server...</span>
+    </div>
+    <footer>
+        <p>&copy; 2025 Smart Courier System (SCS). All rights reserved.</p>
+        <div class="footer-text">
+            <a href="landing.html">Home</a> | 
+            <a href="index.html">Track</a> | 
+            <a href="order-delivery.html">Order</a> | 
+            <a href="about.html">About</a> | 
+            <a href="contact.html">Contact</a>
+        </div>
+    </footer>
+    <script>
+        // Check server status
+        const serverUrl = 'http://localhost:5000';
+        const statusIndicator = document.querySelector('.status-indicator');
+        const statusText = document.querySelector('.status-text');
+
+        async function checkServerStatus() {
+            try {
+                const response = await fetch(`${serverUrl}/api/track/SCS12345`);
+                if (response.ok) {
+                    statusIndicator.className = 'status-indicator online';
+                    statusText.textContent = 'Server Online (localhost:5000)';
+                } else {
+                    statusIndicator.className = 'status-indicator offline';
+                    statusText.textContent = 'Server Error';
+                }
+            } catch (error) {
+                statusIndicator.className = 'status-indicator offline';
+                statusText.textContent = 'Server Offline';
+            }
+        }
+
+        // Check status immediately and every 30 seconds
+        checkServerStatus();
+        setInterval(checkServerStatus, 30000);
+
+        document.getElementById('owner-login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const notification = document.getElementById('notification');
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/owner-login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Store the token and username
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('username', data.username);
+                    localStorage.setItem('owner_id', data.id || '');
+                    
+                    // Show success message
+                    notification.textContent = `Owner login successful! (ID: ${data.id}) Redirecting...`;
+                    notification.className = 'notification success';
+                    notification.style.display = 'block';
+                    
+                    // Redirect to owner dashboard
+                    setTimeout(() => {
+                        window.location.href = 'owner.html';
+                    }, 1500);
+                } else {
+                    // Show error message
+                    notification.textContent = data.message || 'Login failed. Please try again.';
+                    notification.className = 'notification error';
+                    notification.style.display = 'block';
+                }
+            } catch (error) {
+                notification.textContent = 'An error occurred. Please try again.';
+                notification.className = 'notification error';
+                notification.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

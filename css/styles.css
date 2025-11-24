@@ -1,0 +1,27 @@
+/* General styles for the web-project */
+
+.footer-text {
+    margin-top: 12px;
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+/* Utility classes for auth-protected pages */
+.hidden { display: none !important; }
+.auth-loading {
+    text-align: center;
+    padding: 24px;
+    background: #fff;
+    border: 1px solid #eee;
+    margin: 20px auto;
+    max-width: 600px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+}
+.logout-btn {
+    background: transparent;
+    border: 1px solid #ddd;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}

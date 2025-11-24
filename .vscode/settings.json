@@ -1,0 +1,17 @@
+{
+    "chat.agent.maxRequests": 10000,
+    "chat.agentSessionsViewLocation": "view",
+    "chat.allowAnonymousAccess": true,
+    "chat.checkpoints.showFileChanges": true,
+    "chat.editor.wordWrap": "on",
+    "chat.edits2.enabled": true,
+    "chat.mcp.discovery.enabled": {
+        "claude-desktop": true,
+        "windsurf": true,
+        "cursor-global": true,
+        "cursor-workspace": true
+    },
+    "chat.mcp.gallery.enabled": true,
+    "chat.renderRelatedFiles": true,
+    "chat.tools.terminal.autoReplyToPrompts": true
+}
