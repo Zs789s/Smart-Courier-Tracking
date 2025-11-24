@@ -3,8 +3,7 @@ const path = require('path');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { Low } = require('lowdb');
-const { JSONFile } = require('lowdb/node');
+const { Client } = require('pg');
 const { nanoid } = require('nanoid');
 
 const PORT = process.env.PORT || 5000;
@@ -14,30 +13,157 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Database (lowdb)
-const file = path.join(__dirname, 'db.json');
-const adapter = new JSONFile(file);
-const db = new Low(adapter);
+// Serve static frontend (placed before API routes)
+app.use(express.static(path.join(__dirname)));
 
-async function initDB() {
-  await db.read();
-  db.data = db.data || { users: [], orders: [] };
-  // Ensure unique numeric id for orders
-  if (!Array.isArray(db.data.orders)) db.data.orders = [];
-  if (!Array.isArray(db.data.users)) db.data.users = [];
-  await db.write();
+// Logging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} ${req.method} ${req.path}`);
+  next();
+});
+
+// Middleware to protect routes
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (token == null) return res.sendStatus(401); // No token
+
+  jwt.verify(token, SECRET, (err, user) => {
+    if (err) return res.sendStatus(403); // Invalid token
+    req.user = user;
+    next();
+  });
 }
 
-initDB();
+// Database adapter selection: prefer Postgres when DATABASE_URL is set and looks like postgres,
+// otherwise fall back to SQLite adapter (local data.sqlite).
+const DATABASE_URL = process.env.DATABASE_URL || '';
+let db;
+if (DATABASE_URL && DATABASE_URL.startsWith('postgres')) {
+  // PostgreSQL Client Setup
+  const client = new Client({ connectionString: DATABASE_URL });
+  client.connect()
+    .then(() => console.log('Connected to PostgreSQL.'))
+    .catch(err => {
+      console.error('Failed to connect to PostgreSQL:', err);
+      process.exit(1);
+    });
 
-// Serve static frontend
-app.use(express.static(path.join(__dirname)));
+  // Postgres-backed implementations
+  readDB = async function () {
+    try {
+      const usersRes = await client.query('SELECT id, username, email, password_hash FROM users ORDER BY id;');
+      const ordersRes = await client.query('SELECT * FROM orders ORDER BY id;');
+
+      const users = usersRes.rows.map(u => ({ id: u.id, username: u.username, email: u.email, password_hash: u.password_hash }));
+      const orders = ordersRes.rows.map(r => ({
+        id: r.id,
+        tracking_number: r.tracking_number,
+        trackingNumber: r.trackingnumber || r.tracking_number,
+        sender_name: r.sender_name,
+        sender_phone: r.sender_phone,
+        sender_address: r.sender_address,
+        sender_latitude: r.sender_latitude,
+        sender_longitude: r.sender_longitude,
+        receiver_name: r.receiver_name,
+        receiver_phone: r.receiver_phone,
+        receiver_address: r.receiver_address,
+        receiver_latitude: r.receiver_latitude,
+        receiver_longitude: r.receiver_longitude,
+        parcel_description: r.parcel_description,
+        value: r.value,
+        special_instructions: r.special_instructions,
+        carrier: r.carrier,
+        service: r.service,
+        weight: r.weight,
+        status: r.status,
+        location: r.location,
+        latitude: r.latitude,
+        longitude: r.longitude,
+        estimated_delivery: r.estimated_delivery,
+        history: Array.isArray(r.history) ? r.history : (r.history ? JSON.parse(r.history) : []),
+        user_id: r.user_id
+      }));
+
+      return { users, orders };
+    } catch (err) {
+      console.error('readDB error:', err);
+      return { users: [], orders: [] };
+    }
+  };
+
+  writeDB = async function (data) {
+    const orders = (data && data.orders) ? data.orders : [];
+    const clientTx = client;
+    try {
+      await clientTx.query('BEGIN');
+      await clientTx.query('DELETE FROM orders;');
+
+      const insertText = `INSERT INTO orders (
+        id, tracking_number, trackingNumber, sender_name, sender_phone, sender_address, sender_latitude, sender_longitude,
+        receiver_name, receiver_phone, receiver_address, receiver_latitude, receiver_longitude,
+        parcel_description, value, special_instructions, carrier, service, weight, status, location,
+        latitude, longitude, estimated_delivery, history, user_id
+      ) VALUES (
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25
+      );`;
+
+      for (const o of orders) {
+        const historyValue = o.history ? JSON.stringify(o.history) : JSON.stringify([]);
+        const params = [
+          o.id || null,
+          o.tracking_number || o.trackingNumber || null,
+          o.trackingNumber || o.tracking_number || null,
+          o.sender_name || null,
+          o.sender_phone || null,
+          o.sender_address || null,
+          o.sender_latitude || null,
+          o.sender_longitude || null,
+          o.receiver_name || null,
+          o.receiver_phone || null,
+          o.receiver_address || null,
+          o.receiver_latitude || null,
+          o.receiver_longitude || null,
+          o.parcel_description || null,
+          o.value || null,
+          o.special_instructions || null,
+          o.carrier || null,
+          o.service || null,
+          o.weight || 0,
+          o.status || 'Pending',
+          o.location || null,
+          o.latitude || 0,
+          o.longitude || 0,
+          o.estimated_delivery || null,
+          historyValue,
+          o.user_id || null
+        ];
+        await clientTx.query(insertText, params);
+      }
+
+      await clientTx.query('COMMIT');
+      return true;
+    } catch (err) {
+      await clientTx.query('ROLLBACK');
+      console.error('writeDB error:', err);
+      throw err;
+    }
+  };
+} else {
+  const sqliteAdapter = require('./db-sqlite');
+  db = sqliteAdapter;
+  console.log('Using SQLite adapter (data.sqlite).');
+}
+
+// NOTE: static file serving moved below route protections so we can protect specific files (e.g., owner.html)
 
 // Helpers
 function formatOrder(o) {
   return {
     id: o.id,
     tracking_number: o.tracking_number,
+    trackingNumber: o.tracking_number,
     carrier: o.carrier,
     service: o.service,
     weight: o.weight,
@@ -45,116 +171,218 @@ function formatOrder(o) {
     location: o.location,
     latitude: o.latitude,
     longitude: o.longitude,
+    sender_latitude: o.sender_latitude,
+    sender_longitude: o.sender_longitude,
+    receiver_latitude: o.receiver_latitude,
+    receiver_longitude: o.receiver_longitude,
     estimated_delivery: o.estimated_delivery,
     history: o.history || []
   };
 }
 
-// Routes
+// Protect owner.html and related API routes
+app.get('/owner.html', authenticateToken, (req, res) => {
+  res.sendFile(path.join(__dirname, 'owner.html'));
+});
+app.get('/api/orders', authenticateToken, async (req, res) => {
+  const orders = await db.getOrders();
+  return res.json({ orders: orders.map(formatOrder) });
+});
+
+// Public endpoint for tracking by tracking number
 app.get('/api/track/:tracking_number', async (req, res) => {
-  await db.read();
-  const tn = req.params.tracking_number;
-  const order = db.data.orders.find(o => o.tracking_number === tn);
-  if (!order) return res.status(404).json({ message: 'Order not found' });
-  return res.json(formatOrder(order));
+  try {
+    const tn = req.params.tracking_number;
+    const orders = await db.getOrders();
+    const order = orders.find(o => o.tracking_number === tn);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+    return res.json(formatOrder(order));
+  } catch (error) {
+    console.error('Error tracking order:', error);
+    res.status(500).json({ message: 'Error tracking order', error: error.message });
+  }
 });
 
-app.get('/api/orders', async (req, res) => {
-  await db.read();
-  return res.json({ orders: db.data.orders.map(formatOrder) });
+// Public endpoint for searching orders by phone number (sender or receiver). Returns array of matching orders.
+app.get('/api/track/phone/:phone', async (req, res) => {
+  try {
+    const raw = req.params.phone || '';
+    const q = String(raw).replace(/\D/g, ''); // digits only
+    if (!q) return res.status(400).json({ message: 'Invalid phone number' });
+
+    const orders = await db.getOrders();
+    const matches = orders.filter(o => {
+      const sp = String(o.sender_phone || o.senderPhone || '').replace(/\D/g, '');
+      const rp = String(o.receiver_phone || o.receiverPhone || '').replace(/\D/g, '');
+      return (sp && sp.includes(q)) || (rp && rp.includes(q));
+    });
+
+    const results = matches.map(formatOrder);
+    return res.json({ orders: results });
+  } catch (error) {
+    console.error('Error searching orders by phone:', error);
+    res.status(500).json({ message: 'Error searching orders', error: error.message });
+  }
 });
 
+
+// Protected route for user dashboard
+app.get('/user-dashboard.html', authenticateToken, (req, res) => {
+  res.sendFile(path.join(__dirname, 'user-dashboard.html'));
+});
+
+// Protected API endpoint for user-specific orders
+app.get('/api/user-orders', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id; // Assuming user ID is available in req.user after authentication
+    if (!userId) {
+      return res.status(401).json({ message: 'User ID not found in token' });
+    }
+    const userOrders = await db.getOrdersByUserId(userId);
+    res.json({ orders: userOrders.map(formatOrder) });
+  } catch (error) {
+    console.error('Error fetching user orders:', error);
+    res.status(500).json({ message: 'Error fetching user orders', error: error.message });
+  }
+});
+
+// Public endpoint for placing orders (no authentication required)
 app.post('/api/orders', async (req, res) => {
-  await db.read();
-  const data = req.body || {};
-  const nextId = db.data.orders.length ? Math.max(...db.data.orders.map(o => o.id)) + 1 : 1;
-  const tracking_number = data.tracking_number || ('SCS' + (10000 + nextId));
-  const order = {
-    id: nextId,
-    tracking_number,
-    carrier: data.carrier || 'SCS Logistics',
-    service: data.service || 'Standard',
-    weight: data.weight || 0,
-    status: data.status || 'Pending',
-    location: data.location || 'Order Placed',
-    latitude: data.latitude || 0,
-    longitude: data.longitude || 0,
-    estimated_delivery: data.estimated_delivery || 'To be determined',
-    history: data.history || [{ status: 'Order Placed', location: data.location || 'Customer Request', date: new Date().toISOString().slice(0,10) }]
-  };
-  db.data.orders.push(order);
-  await db.write();
-  res.status(201).json({ message: 'Order created successfully', tracking_number: order.tracking_number });
+  try {
+    const data = req.body || {};
+    const tracking_number = data.tracking_number || `SCS${nanoid(7).toUpperCase()}`;
+    const orderData = {
+      tracking_number,
+      // include optional fields sent by clients
+      trackingNumber: tracking_number,
+      sender_name: data.sender_name || data.senderName || '',
+      sender_address: data.sender_address || data.senderAddress || '',
+      sender_phone: data.sender_phone || data.senderPhone || '',
+      receiver_name: data.receiver_name || data.receiverName || '',
+      receiver_address: data.receiver_address || data.receiverAddress || '',
+      receiver_phone: data.receiver_phone || data.receiverPhone || '',
+      parcel_description: data.parcel_description || data.parcelDescription || '',
+      value: data.value || data.estimated_value || 0,
+      special_instructions: data.special_instructions || data.specialInstructions || '',
+      carrier: data.carrier || 'SCS Logistics',
+      service: data.service || 'Standard',
+      weight: data.weight || 0,
+      status: data.status || 'Pending',
+      location: data.location || 'Order Placed',
+      latitude: data.latitude || 0,
+      longitude: data.longitude || 0,
+      estimated_delivery: data.estimated_delivery || 'To be determined',
+      history: data.history || [{ status: 'Order Placed', location: data.location || 'Customer Request', date: new Date().toISOString().slice(0,10) }]
+    };
+    const newOrder = await db.createOrder(orderData);
+    // Return the created order and both tracking_number and trackingNumber for client compatibility
+    res.status(201).json({
+      message: 'Order created successfully',
+      tracking_number: newOrder.tracking_number,
+      trackingNumber: newOrder.tracking_number,
+      order: formatOrder(newOrder)
+    });
+  } catch (error) {
+    console.error('Error creating order:', error);
+    res.status(500).json({ message: 'Error creating order', error: error.message });
+  }
 });
 
-app.delete('/api/orders/:id', async (req, res) => {
-  await db.read();
+app.delete('/api/orders/:id', authenticateToken, async (req, res) => {
   const id = Number(req.params.id);
-  const idx = db.data.orders.findIndex(o => o.id === id);
-  if (idx === -1) return res.status(404).json({ message: 'Order not found' });
-  db.data.orders.splice(idx, 1);
-  await db.write();
+  const success = await db.deleteOrder(id);
+  if (!success) return res.status(404).json({ message: 'Order not found' });
   res.json({ message: 'Order deleted successfully' });
 });
 
-app.put('/api/orders/:id', async (req, res) => {
-  await db.read();
+app.put('/api/orders/:id', authenticateToken, async (req, res) => {
   const id = Number(req.params.id);
-  const order = db.data.orders.find(o => o.id === id);
-  if (!order) return res.status(404).json({ message: 'Order not found' });
-  const fields = ['status','location','latitude','longitude','estimated_delivery','carrier','service','weight','history'];
-  fields.forEach(f => {
-    if (req.body[f] !== undefined) order[f] = req.body[f];
-  });
-  await db.write();
-  res.json({ message: 'Order updated successfully', order: formatOrder(order) });
+  const updatedOrder = await db.updateOrder(id, req.body);
+  if (!updatedOrder) return res.status(404).json({ message: 'Order not found' });
+  res.json({ message: 'Order updated successfully', order: formatOrder(updatedOrder) });
 });
 
 // Users
-app.get('/api/users', async (req, res) => {
-  await db.read();
-  const users = db.data.users.map(u => ({ id: u.id, username: u.username, email: u.email }));
+app.get('/api/users', authenticateToken, async (req, res) => {
+  const users = await db.getUsers();
   res.json({ users });
 });
 
-app.delete('/api/users/:id', async (req, res) => {
-  await db.read();
+// Return current authenticated user info
+app.get('/api/me', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user && req.user.user_id;
+    if (!userId) return res.status(401).json({ message: 'Unauthenticated' });
+    const user = await db.getUserById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    // return minimal safe profile
+    return res.json({ id: user.id, username: user.username, email: user.email });
+  } catch (err) {
+    console.error('/api/me error', err);
+    return res.status(500).json({ message: 'Failed to fetch user info' });
+  }
+});
+
+// Return orders for the authenticated user
+app.get('/api/myorders', authenticateToken, async (req, res) => {
+  try {
+    const orders = await db.getOrders();
+    const userId = req.user && req.user.user_id;
+    const myOrders = orders.filter(o => Number(o.user_id) === Number(userId));
+    return res.json({ orders: myOrders.map(formatOrder) });
+  } catch (err) {
+    console.error('myorders error', err);
+    return res.status(500).json({ message: 'Failed to fetch user orders' });
+  }
+});
+
+app.delete('/api/users/:id', authenticateToken, async (req, res) => {
   const id = Number(req.params.id);
-  const idx = db.data.users.findIndex(u => u.id === id);
-  if (idx === -1) return res.status(404).json({ message: 'User not found' });
-  db.data.users.splice(idx,1);
-  await db.write();
+  const success = await db.deleteUser(id);
+  if (!success) return res.status(404).json({ message: 'User not found' });
   res.json({ message: 'User deleted successfully' });
 });
 
-app.post('/api/register', async (req, res) => {
-  await db.read();
-  const { username, email, password } = req.body || {};
-  if (!username || !email || !password) return res.status(400).json({ message: 'Missing required fields' });
-  if (db.data.users.find(u => u.username === username)) return res.status(400).json({ message: 'Username already exists' });
-  if (db.data.users.find(u => u.email === email)) return res.status(400).json({ message: 'Email already exists' });
-  const id = db.data.users.length ? Math.max(...db.data.users.map(u => u.id)) + 1 : 1;
-  const password_hash = await bcrypt.hash(password, 10);
-  db.data.users.push({ id, username, email, password_hash });
-  await db.write();
-  res.status(201).json({ message: 'User created successfully' });
+// Owner registration endpoint
+app.post('/api/owner-register', async (req, res) => {
+  try {
+    const { username, email, password } = req.body || {};
+    if (!username || !email || !password) return res.status(400).json({ message: 'Missing required fields' });
+    
+    const existingUserByUsername = await db.getUserByUsername(username);
+    if (existingUserByUsername) return res.status(400).json({ message: 'Username already exists' });
+
+    const existingUserByEmail = await db.getUserByEmail(email);
+    if (existingUserByEmail) return res.status(400).json({ message: 'Email already exists' });
+    
+    // Create the owner account
+    const newUser = await db.createUser({ username, email, password });
+    res.status(201).json({ message: 'Owner account created successfully', id: newUser.id, username: newUser.username });
+  } catch (error) {
+    console.error('Error during owner registration:', error);
+    res.status(500).json({ message: 'Error creating owner account', error: error.message });
+  }
 });
 
-app.post('/api/login', async (req, res) => {
-  await db.read();
+// Owner-only login endpoint
+app.post('/api/owner-login', async (req, res) => {
   const { username, password } = req.body || {};
   if (!username || !password) return res.status(400).json({ message: 'Missing username or password' });
-  const user = db.data.users.find(u => u.username === username);
+  const user = await db.getUserByUsername(username);
   if (!user) return res.status(401).json({ message: 'Invalid username or password' });
   const ok = await bcrypt.compare(password, user.password_hash);
   if (!ok) return res.status(401).json({ message: 'Invalid username or password' });
+  // For now, issue token to any authenticated user (you can add role checks later)
   const token = jwt.sign({ user_id: user.id }, SECRET, { expiresIn: '1d' });
-  res.json({ message: 'Login successful', token, username: user.username });
+  res.json({ message: 'Owner login successful', token, username: user.username, id: user.id });
 });
 
 // Fallback to serve index.html for other routes (SPA behavior)
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  console.log('Fallback route:', req.method, req.path);
+  res.sendFile(path.join(__dirname, 'index.html'), (err) => {
+    if (err) console.error('sendFile error:', err);
+  });
 });
 
 app.listen(PORT, () => {

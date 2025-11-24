@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Orders - Smart Courier System</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/styles.css">
     <style>
         .orders-container {
             max-width: 1200px;
@@ -128,7 +129,7 @@
 <body>
     <header>
         <nav>
-            <a href="landing.html" class="logo">🚀 SCS</a>
+            <a href="landing.html" class="logo"><img src="lion-logo.svg" alt="SCS"></a>
             <ul>
                 <li><a href="landing.html">Home</a></li>
                 <li><a href="landing.html#features">Features</a></li>
@@ -173,7 +174,7 @@
 
     <footer>
         <p>&copy; 2025 Smart Courier System (SCS). All rights reserved.</p>
-        <div style="margin-top: 12px; font-size: 0.9em; opacity: 0.9;">
+        <div class="footer-text">
             <a href="landing.html">Home</a> | 
             <a href="index.html">Track</a> | 
             <a href="order-delivery.html">Order</a> | 
@@ -186,7 +187,8 @@
         async function loadOrders() {
             try {
                 const response = await fetch('/api/orders');
-                const orders = await response.json();
+                const data = await response.json();
+                const orders = (data && data.orders) ? data.orders : [];
 
                 const tbody = document.getElementById('orders-tbody');
                 

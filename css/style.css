@@ -45,6 +45,13 @@ nav .logo {
     text-decoration: none;
     letter-spacing: 1px;
     transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+nav .logo img {
+    height: 40px;
+    width: auto;
 }
 
 nav .logo:hover {

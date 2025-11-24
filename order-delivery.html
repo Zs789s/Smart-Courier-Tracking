@@ -5,38 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Place Your Order - Smart Courier System</title>
     <link rel="stylesheet" href="css/style.css">
-
+    <link rel="stylesheet" href="css/map-styles.css">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
         main {
             padding: 40px 20px;
-            max-width: 1200px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
-        .order-header {
+        .page-header {
             text-align: center;
             margin-bottom: 40px;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 20px;
+            color: white;
         }
 
-        .order-header h1 {
-            color: #333;
-            font-size: 32px;
-            margin: 0 0 10px 0;
+        .page-header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
         }
 
-        .order-header p {
-            color: #666;
+        .page-header p {
             font-size: 16px;
-            margin: 0;
+            opacity: 0.9;
         }
 
-        .form-container {
+        .card {
             background: white;
+            border-radius: 12px;
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .form-grid.full {
+            grid-template-columns: 1fr;
         }
 
         .form-section {
@@ -46,20 +66,9 @@
         .form-section h2 {
             color: #667eea;
             font-size: 18px;
-            margin: 0 0 20px 0;
+            margin-bottom: 20px;
             padding-bottom: 10px;
             border-bottom: 2px solid #f0f0f0;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .form-grid.full {
-            grid-template-columns: 1fr;
         }
 
         .form-group {
@@ -74,7 +83,7 @@
             font-size: 14px;
         }
 
-        .form-group label .required {
+        .required {
             color: #dc3545;
             margin-left: 3px;
         }
@@ -86,7 +95,7 @@
             border: 1px solid #ddd;
             border-radius: 6px;
             font-size: 14px;
-            font-family: Arial, sans-serif;
+            font-family: inherit;
             transition: all 0.3s;
         }
 
@@ -95,7 +104,7 @@
         .form-group textarea:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 8px rgba(102, 126, 234, 0.2);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .form-group textarea {
@@ -103,54 +112,11 @@
             min-height: 100px;
         }
 
-        .form-help {
-            font-size: 12px;
-            color: #999;
-            margin-top: 4px;
-        }
-
-        .message {
-            padding: 15px 20px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            display: none;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border-left: 4px solid #28a745;
-            display: flex;
-        }
-
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border-left: 4px solid #dc3545;
-            display: flex;
-        }
-
-        .message-icon {
-            font-size: 20px;
-            flex-shrink: 0;
-        }
-
-        .message-content {
-            flex: 1;
-        }
-
-        .message-title {
-            font-weight: 600;
-            margin-bottom: 3px;
-        }
-
         .button-group {
             display: flex;
             gap: 15px;
-            margin-top: 30px;
             justify-content: center;
+            margin-top: 30px;
         }
 
         .btn {
@@ -161,193 +127,223 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            text-decoration: none;
         }
 
-        .btn-submit {
+        .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            flex: 1;
-            max-width: 300px;
+            min-width: 200px;
         }
 
-        .btn-submit:hover {
+        .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
         }
 
-        .btn-submit:active {
-            transform: translateY(0);
-        }
-
-        .btn-reset {
+        .btn-secondary {
             background: #f0f0f0;
             color: #333;
-            flex: 1;
-            max-width: 300px;
+            min-width: 200px;
         }
 
-        .btn-reset:hover {
+        .btn-secondary:hover {
             background: #e0e0e0;
         }
 
-        .loading {
-            display: none;
-            text-align: center;
-            color: #667eea;
-            font-weight: 600;
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
-        .loading.show {
-            display: block;
-        }
-
-        .tracking-info {
-            background: #f0f7ff;
-            padding: 20px;
+        .alert {
+            padding: 15px 20px;
             border-radius: 6px;
-            border-left: 4px solid #667eea;
-            margin-top: 20px;
+            margin-bottom: 20px;
             display: none;
         }
 
-        .tracking-info.show {
+        .alert.show {
             display: block;
         }
 
-        .tracking-info h3 {
-            color: #667eea;
-            margin: 0 0 10px 0;
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
         }
 
-        .tracking-info p {
-            margin: 8px 0;
-            color: #333;
-            font-size: 15px;
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
         }
 
-        .tracking-number-display {
-            font-size: 18px;
-            font-weight: 700;
-            color: #667eea;
-            background: white;
-            padding: 10px;
-            border-radius: 4px;
-            font-family: monospace;
+        .loading-spinner {
+            display: none;
             text-align: center;
-            margin: 10px 0;
+            padding: 20px;
+        }
+
+        .loading-spinner.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+        }
+
+        .success-title {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .success-text {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .tracking-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .tracking-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .tracking-number {
+            font-size: 36px;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            word-break: break-all;
         }
 
         .copy-btn {
-            background: #667eea;
+            background: rgba(255, 255, 255, 0.2);
             color: white;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .copy-btn:hover {
-            background: #764ba2;
-        }
-
-                .map-section h3 {
-            color: #667eea;
-            font-size: 18px;
-            margin: 0 0 15px 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        #location-map {
-            width: 100%;
-            height: 400px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 15px;
-        }
-
-        .map-info {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-top: 15px;
-        }
-
-        .location-display {
-            padding: 12px;
-            background: white;
-            border-radius: 6px;
-            border-left: 4px solid #667eea;
-        }
-
-        .location-display label {
-            font-weight: 600;
-            color: #667eea;
-            font-size: 12px;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .location-display p {
-            margin: 0;
-            color: #333;
-            font-size: 14px;
-            word-break: break-word;
-        }
-
-        .map-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .map-tab {
-            padding: 10px 15px;
-            border: none;
-            background: #f0f0f0;
-            color: #333;
+            border: 1px solid white;
+            padding: 10px 20px;
             border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
         }
 
-        .map-tab.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .next-steps {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 25px;
+        }
+
+        .next-steps h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .next-steps ol {
+            margin-left: 20px;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .next-steps li {
+            margin-bottom: 10px;
+        }
+
+        .action-links {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .action-links a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .action-links a:hover {
+            background: #667eea;
             color: white;
         }
 
-        .map-instruction {
-            padding: 10px 15px;
-            background: #e3f2fd;
-            color: #1976d2;
-            border-radius: 6px;
-            font-size: 13px;
-            margin-bottom: 10px;
-            border-left: 3px solid #1976d2;
-        }
-
-        .coordinates-display {
-            padding: 10px;
-            background: #f5f5f5;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 12px;
-            color: #666;
-            margin-top: 10px;
-        }
-
         @media (max-width: 768px) {
-            .map-info {
+            .form-grid {
                 grid-template-columns: 1fr;
             }
 
-            #location-map {
-                height: 300px;
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                min-width: auto;
+                width: 100%;
+            }
+
+            .page-header h1 {
+                font-size: 28px;
+            }
+
+            .tracking-number {
+                font-size: 28px;
+            }
+
+            .action-links {
+                flex-direction: column;
             }
         }
     </style>
@@ -355,7 +351,7 @@
 <body>
     <header>
         <nav>
-            <a href="landing.html" class="logo">🚀 SCS</a>
+            <a href="landing.html" class="logo"><img src="lion-logo.svg" alt="SCS"></a>
             <ul>
                 <li><a href="landing.html">Home</a></li>
                 <li><a href="landing.html#features">Features</a></li>
@@ -371,177 +367,153 @@
     </header>
 
     <main>
-        <div class="order-header">
+        <div class="page-header">
             <h1>📋 Place Your Order</h1>
             <p>Fast, reliable, and transparent delivery service</p>
         </div>
 
-        <div class="form-container">
-            <!-- Message Display -->
-            <div id="order-message" class="message">
-                <div class="message-icon">✓</div>
-                <div class="message-content">
-                    <div class="message-title">Success</div>
-                    <div class="message-text"></div>
-                </div>
-            </div>
+        <div class="card">
+            <!-- Alert Messages -->
+            <div id="alert-message" class="alert"></div>
 
-            <form id="order-delivery-form">
-                <!-- Sender Information Section -->
+            <!-- Order Form -->
+            <form id="order-form">
+                <!-- Sender Information -->
                 <div class="form-section">
                     <h2>📍 Sender Information</h2>
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Full Name <span class="required">*</span></label>
-                            <input type="text" id="sender-name" name="sender-name" placeholder="e.g., John Doe" required>
-                            <div class="form-help">Your full name</div>
+                            <input type="text" id="sender-name" placeholder="e.g., John Doe" required>
                         </div>
                         <div class="form-group">
                             <label>Phone Number <span class="required">*</span></label>
-                            <input type="tel" id="sender-phone" name="sender-phone" placeholder="e.g., +1-234-567-8900" required>
-                            <div class="form-help">Contact phone number</div>
+                            <input type="tel" id="sender-phone" placeholder="e.g., +1-234-567-8900" required>
                         </div>
                     </div>
                     <div class="form-grid full">
                         <div class="form-group">
                             <label>Address <span class="required">*</span></label>
-                            <input type="text" id="sender-address" name="sender-address" placeholder="e.g., 123 Main St, New York, NY 10001" required>
-                            <div class="form-help">Complete pickup address</div>
-                        </div>
-                        <div class="form-group">
-                            <label>Pickup Location (Latitude) <span class="required">*</span></label>
-                            <input type="number" id="sender-latitude" name="sender-latitude" step="0.0001" placeholder="e.g., 40.7128" required>
-                            <div class="form-help">Automatically filled by "Use My Location" or enter manually</div>
-                        </div>
-                        <div class="form-group">
-                            <label>Pickup Location (Longitude) <span class="required">*</span></label>
-                            <input type="number" id="sender-longitude" name="sender-longitude" step="0.0001" placeholder="e.g., -74.0060" required>
-                            <div class="form-help">Automatically filled by "Use My Location" or enter manually</div>
-                        </div>
-                        <div class="form-group">
-                            <button type="button" class="btn btn-submit" onclick="getLocation('sender')">Use My Location (Sender)</button>
-                        </div>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Full Name <span class="required">*</span></label>
-                            <input type="text" id="receiver-name" name="receiver-name" placeholder="e.g., Jane Smith" required>
-                            <div class="form-help">Recipient full name</div>
-                        </div>
-                        <div class="form-group">
-                            <label>Phone Number <span class="required">*</span></label>
-                            <input type="tel" id="receiver-phone" name="receiver-phone" placeholder="e.g., +1-234-567-8900" required>
-                            <div class="form-help">Contact phone number</div>
-                        </div>
-                    </div>
-                    <div class="form-grid full">
-                        <div class="form-group">
-                            <label>Address <span class="required">*</span></label>
-                            <input type="text" id="receiver-address" name="receiver-address" placeholder="e.g., 456 Oak Ave, Los Angeles, CA 90001" required>
-                            <div class="form-help">Complete delivery address</div>
-                        </div>
-                        <div class="form-group">
-                            <label>Delivery Location (Latitude) <span class="required">*</span></label>
-                            <input type="number" id="receiver-latitude" name="receiver-latitude" step="0.0001" placeholder="e.g., 34.0522" required>
-                            <div class="form-help">Automatically filled by "Use My Location" or enter manually</div>
-                        </div>
-                        <div class="form-group">
-                            <label>Delivery Location (Longitude) <span class="required">*</span></label>
-                            <input type="number" id="receiver-longitude" name="receiver-longitude" step="0.0001" placeholder="e.g., -118.2437" required>
-                            <div class="form-help">Automatically filled by "Use My Location" or enter manually</div>
-                        </div>
-                        <div class="form-group">
-                            <button type="button" class="btn btn-submit" onclick="getLocation('receiver')">Use My Location (Receiver)</button>
+                            <input type="text" id="sender-address" placeholder="e.g., 123 Main St, New York, NY 10001" required>
                         </div>
                     </div>
                 </div>
 
-                <!-- Package Information Section -->
+                <!-- Receiver Information -->
                 <div class="form-section">
-                    <h2>📦 Package Information</h2>
+                    <h2>📦 Receiver Information</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Full Name <span class="required">*</span></label>
+                            <input type="text" id="receiver-name" placeholder="e.g., Jane Smith" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number <span class="required">*</span></label>
+                            <input type="tel" id="receiver-phone" placeholder="e.g., +1-234-567-8210" required>
+                        </div>
+                    </div>
                     <div class="form-grid full">
                         <div class="form-group">
-                            <label>Package Description <span class="required">*</span></label>
-                            <textarea id="parcel-description" name="parcel-description" placeholder="Describe what you're sending (e.g., Electronics, Documents, Clothing, Food, etc.)" required></textarea>
-                            <div class="form-help">Be specific about contents for better handling</div>
+                            <label>Address <span class="required">*</span></label>
+                            <input type="text" id="receiver-address" placeholder="e.g., 456 Oak Ave, Los Angeles, CA 90001" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Package Information -->
+                <div class="form-section">
+                    <h2>📦 Package Details</h2>
+                    <div class="form-grid full">
+                        <div class="form-group">
+                            <label>Description <span class="required">*</span></label>
+                            <textarea id="parcel-description" placeholder="Describe what you're sending..." required></textarea>
                         </div>
                     </div>
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Weight (kg) <span class="required">*</span></label>
-                            <input type="number" id="weight" name="weight" min="0.1" step="0.1" placeholder="2.5" value="2.5" required>
-                            <div class="form-help">Approximate package weight</div>
+                            <input type="number" id="weight" min="0.1" step="0.1" value="2.5" required title="Weight in kilograms">
                         </div>
                         <div class="form-group">
-                            <label>Estimated Value ($)</label>
-                            <input type="number" id="value" name="value" min="0" step="0.01" placeholder="100.00">
-                            <div class="form-help">For insurance purposes (optional)</div>
+                            <label>Estimated Value (₹)</label>
+                            <input type="number" id="value" min="0" step="0.01" placeholder="100.00" title="Estimated value in Indian Rupees">
                         </div>
                     </div>
                 </div>
 
-                <!-- Service Selection Section -->
+                <!-- Delivery Service -->
                 <div class="form-section">
                     <h2>🚚 Delivery Service</h2>
-                    <div class="form-grid">
+                    <div class="form-grid full">
                         <div class="form-group">
                             <label>Service Type <span class="required">*</span></label>
-                            <select id="delivery-type" name="delivery-type" required onchange="updateDeliveryInfo()">
-                                <option value="">Select a service...</option>
-                                <option value="standard">📦 Standard Delivery (3-5 days)</option>
-                                <option value="express">⚡ Express Delivery (Next day)</option>
-                                <option value="intercity-person">👥 Person to Person Inter-City</option>
-                                <option value="within-city-person">👥 Person to Person Within-City</option>
-                                <option value="drone">🚁 Drone Delivery (2-6 hours)</option>
+                            <select id="delivery-type" required title="Delivery Service Type">
+                                <option value="">Choose a delivery option...</option>
+                                <option value="standard">📦 Standard Delivery - 3-5 business days - ₹5.99</option>
+                                <option value="express">⚡ Express Delivery - Next business day - ₹12.99</option>
+                                <option value="same-day">🚀 Same Day Delivery - Within 12 hours - ₹24.99</option>
+                                <option value="p2p-local">👥 P2P In Local - Within 3 hours - ₹19.99</option>
+                                <option value="drone">🚁 Drone Delivery - 2-6 hours (limited areas) - ₹35.99</option>
                             </select>
-                            <div class="form-help">Choose your preferred delivery option</div>
                         </div>
+                    </div>
+                    <div class="form-grid full">
                         <div class="form-group">
                             <label>Special Instructions</label>
-                            <input type="text" id="special-instructions" name="special-instructions" placeholder="e.g., Leave at door, Signature required, etc.">
-                            <div class="form-help">Any special handling instructions</div>
+                            <input type="text" id="special-instructions" placeholder="e.g., Leave at door, Signature required...">
                         </div>
                     </div>
                 </div>
 
-                <!-- Submit Buttons -->
+                <!-- Buttons -->
                 <div class="button-group">
-                    <button type="reset" class="btn btn-reset">🔄 Clear Form</button>
-                    <button type="submit" class="btn btn-submit">📤 Place Order Now</button>
-                </div>
-
-                <div id="loading" class="loading">
-                    <span>Processing your order... Please wait</span>
+                    <button type="reset" class="btn btn-secondary">🔄 Clear Form</button>
+                    <button type="submit" class="btn btn-primary">📤 Place Order</button>
                 </div>
             </form>
 
-            <!-- Tracking Info Display -->
-            <div id="tracking-info" class="tracking-info">
-                <h3>✓ Order Successfully Placed!</h3>
-                <p>Your order has been confirmed and registered in our system. Here's your tracking information:</p>
-                <p><strong>Tracking Number:</strong></p>
-                <div class="tracking-number-display" id="tracking-number-display">SCS00000</div>
-                <p style="text-align: center; margin-bottom: 15px;">
+            <!-- Loading Spinner -->
+            <div id="loading" class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Processing your order...</p>
+            </div>
+
+            <!-- Success Message -->
+            <div id="success" class="success-message">
+                <div class="success-icon">✓</div>
+                <div class="success-title">Order Placed Successfully!</div>
+                <div class="success-text">Your package has been registered in our system.</div>
+                
+                <div class="tracking-box">
+                    <div class="tracking-label">YOUR TRACKING NUMBER</div>
+                    <div class="tracking-number" id="display-tracking-number">SCS00000</div>
                     <button type="button" class="copy-btn" onclick="copyTrackingNumber()">📋 Copy Tracking Number</button>
-                </p>
-                <p><strong>Next Steps:</strong></p>
-                <ul style="margin: 10px 0; padding-left: 20px;">
-                    <li>Save your tracking number for future reference</li>
-                    <li>Our courier will pick up the package shortly</li>
-                    <li>Track your package in real-time using the tracking number</li>
-                    <li>You'll receive updates via SMS and email</li>
-                </ul>
-                <p style="text-align: center; margin-top: 20px;">
-                    <a href="index.html" style="color: #667eea; text-decoration: none; font-weight: 600;">🔍 Track Your Package Now →</a>
-                </p>
+                </div>
+
+                <div class="next-steps">
+                    <h3>What's Next?</h3>
+                    <ol>
+                        <li>Save your tracking number for future reference</li>
+                        <li>Our courier will pick up your package shortly</li>
+                        <li>Track your package in real-time using your tracking number</li>
+                        <li>You'll receive SMS and email updates on delivery status</li>
+                    </ol>
+                </div>
+
+                <div class="action-links">
+                    <a href="track.html">🔍 Track Your Package</a>
+                    <a href="order-delivery.html">📤 Place Another Order</a>
+                    <a href="landing.html">🏠 Back to Home</a>
+                </div>
             </div>
         </div>
     </main>
 
     <footer>
         <p>&copy; 2025 Smart Courier System (SCS). All rights reserved.</p>
-        <div style="margin-top: 12px; font-size: 0.9em; opacity: 0.9;">
+        <div class="footer-text">
             <a href="landing.html">Home</a> | 
-            <a href="index.html">Track</a> | 
+            <a href="track.html">Track</a> | 
             <a href="order-delivery.html">Order</a> | 
             <a href="about.html">About</a> | 
             <a href="contact.html">Contact</a>
@@ -549,137 +521,79 @@
     </footer>
 
     <script>
-        // Geolocation functionality
-        function getLocation(locationType) {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    const lat = position.coords.latitude.toFixed(4);
-                    const lng = position.coords.longitude.toFixed(4);
-                    
-                    if (locationType === 'sender') {
-                        document.getElementById('sender-latitude').value = lat;
-                        document.getElementById('sender-longitude').value = lng;
-                        document.getElementById('sender-location-display').textContent = `Current Location: ${lat}, ${lng}`;
-                    } else {
-                        document.getElementById('receiver-latitude').value = lat;
-                        document.getElementById('receiver-longitude').value = lng;
-                        document.getElementById('receiver-location-display').textContent = `Current Location: ${lat}, ${lng}`;
-                    }
-                    showMessage(`Successfully retrieved ${locationType} location.`, 'success');
-                }, error => {
-                    showMessage(`Error getting ${locationType} location: ${error.message}`, 'error');
-                    console.error(`Error getting ${locationType} location:`, error);
-                });
-            } else {
-                showMessage('Geolocation is not supported by this browser.', 'error');
-            }
-        }
+        const form = document.getElementById('order-form');
+        const alertMsg = document.getElementById('alert-message');
+        const loadingDiv = document.getElementById('loading');
+        const successDiv = document.getElementById('success');
+        const trackingDisplay = document.getElementById('display-tracking-number');
 
-        function showMessage(text, type = 'success') {
-            const messageDiv = document.getElementById('order-message');
-            const messageText = messageDiv.querySelector('.message-text');
-            const messageIcon = messageDiv.querySelector('.message-icon');
-            
-            messageDiv.className = 'message ' + type;
-            messageText.textContent = text;
-            messageIcon.textContent = type === 'success' ? '✓' : '✕';
-            messageDiv.style.display = 'flex';
-            
+        function showAlert(message, type = 'success') {
+            alertMsg.textContent = message;
+            alertMsg.className = `alert show alert-${type}`;
+            alertMsg.scrollIntoView({ behavior: 'smooth' });
             if (type === 'success') {
-                setTimeout(() => {
-                    messageDiv.style.display = 'none';
-                }, 5000);
+                setTimeout(() => alertMsg.classList.remove('show'), 5000);
             }
         }
 
-        function updateDeliveryInfo() {
-            const serviceType = document.getElementById('delivery-type').value;
-            let estimatedDays = 3;
-            
-            switch(serviceType) {
-                case 'express':
-                    estimatedDays = 1;
-                    break;
-                case 'within-city-person':
-                    estimatedDays = 1;
-                    break;
-                case 'drone':
-                    estimatedDays = 0;
-                    break;
-                default:
-                    estimatedDays = 3;
-            }
-            
-            return estimatedDays;
+        function showLoading(show) {
+            loadingDiv.classList.toggle('show', show);
+        }
+
+        function showSuccess(trackingNum) {
+            form.style.display = 'none';
+            trackingDisplay.textContent = trackingNum;
+            successDiv.classList.add('show');
+            successDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetPage() {
+            form.style.display = 'block';
+            successDiv.classList.remove('show');
+            alertMsg.classList.remove('show');
+            showLoading(false);
         }
 
         function copyTrackingNumber() {
-            const trackingNum = document.getElementById('tracking-number-display').textContent;
+            const trackingNum = trackingDisplay.textContent;
             navigator.clipboard.writeText(trackingNum).then(() => {
-                alert('Tracking number copied to clipboard!');
+                showAlert('✓ Tracking number copied to clipboard!', 'success');
+            }).catch(() => {
+                showAlert('Failed to copy tracking number', 'error');
             });
         }
 
-        document.getElementById('order-delivery-form').addEventListener('submit', async function(event) {
-            event.preventDefault();
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-            // Get form values
-            const senderName = document.getElementById('sender-name').value.trim();
-            const senderPhone = document.getElementById('sender-phone').value.trim();
-            const senderAddress = document.getElementById('sender-address').value.trim();
-            const receiverName = document.getElementById('receiver-name').value.trim();
-            const receiverPhone = document.getElementById('receiver-phone').value.trim();
-            const receiverAddress = document.getElementById('receiver-address').value.trim();
-            const parcelDescription = document.getElementById('parcel-description').value.trim();
-            const deliveryType = document.getElementById('delivery-type').value;
-            const weight = parseFloat(document.getElementById('weight').value) || 1.0;
-            const value = parseFloat(document.getElementById('value').value) || 0;
-            const specialInstructions = document.getElementById('special-instructions').value.trim();
-            const senderLat = parseFloat(document.getElementById('sender-latitude').value);
-            const senderLng = parseFloat(document.getElementById('sender-longitude').value);
-            const receiverLat = parseFloat(document.getElementById('receiver-latitude').value);
-            const receiverLng = parseFloat(document.getElementById('receiver-longitude').value);
+            // Collect form data
+            const orderData = {
+                sender_name: document.getElementById('sender-name').value.trim(),
+                sender_phone: document.getElementById('sender-phone').value.trim(),
+                sender_address: document.getElementById('sender-address').value.trim(),
+                receiver_name: document.getElementById('receiver-name').value.trim(),
+                receiver_phone: document.getElementById('receiver-phone').value.trim(),
+                receiver_address: document.getElementById('receiver-address').value.trim(),
+                parcel_description: document.getElementById('parcel-description').value.trim(),
+                service: document.getElementById('delivery-type').value,
+                weight: parseFloat(document.getElementById('weight').value),
+                value: parseFloat(document.getElementById('value').value) || 0,
+                special_instructions: document.getElementById('special-instructions').value.trim(),
+                carrier: 'SCS Logistics',
+                status: 'Shipment Created',
+                location: 'Origin Facility'
+            };
 
-            // Validate all required fields
-            if (!senderName || !senderPhone || !senderAddress || !receiverName || !receiverPhone || !receiverAddress || !parcelDescription || !deliveryType) {
-                showMessage('Please fill out all required fields marked with *', 'error');
+            // Validate required fields
+            if (!orderData.sender_name || !orderData.sender_phone || !orderData.sender_address ||
+                !orderData.receiver_name || !orderData.receiver_phone || !orderData.receiver_address ||
+                !orderData.parcel_description || !orderData.service) {
+                showAlert('Please fill out all required fields', 'error');
                 return;
             }
 
             // Show loading state
-            document.getElementById('loading').classList.add('show');
-            document.getElementById('order-delivery-form').style.opacity = '0.6';
-            document.getElementById('order-delivery-form').style.pointerEvents = 'none';
-
-            // Calculate estimated delivery date
-            const estimatedDays = updateDeliveryInfo();
-            const deliveryDate = new Date();
-            deliveryDate.setDate(deliveryDate.getDate() + estimatedDays);
-            const estimatedDelivery = deliveryDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-
-            const orderData = {
-                sender_name: senderName,
-                sender_phone: senderPhone,
-                sender_address: senderAddress,
-                sender_latitude: senderLat,
-                sender_longitude: senderLng,
-                receiver_name: receiverName,
-                receiver_phone: receiverPhone,
-                receiver_address: receiverAddress,
-                receiver_latitude: receiverLat,
-                receiver_longitude: receiverLng,
-                parcel_description: parcelDescription,
-                service: deliveryType,
-                weight: weight,
-                value: value,
-                special_instructions: specialInstructions,
-                carrier: 'SCS Logistics',
-                status: 'Shipment Created',
-                location: 'Origin Facility',
-                latitude: senderLat,
-                longitude: senderLng,
-                estimated_delivery: estimatedDelivery
-            };
+            showLoading(true);
 
             try {
                 const response = await fetch('/api/orders', {
@@ -692,44 +606,32 @@
 
                 const result = await response.json();
 
+                showLoading(false);
+
                 if (response.ok) {
-                    const trackingNum = result.trackingNumber || result.tracking_number || `SCS${Date.now()}`;
-                    
-                    // Display success message and tracking info
-                    document.getElementById('loading').classList.remove('show');
-                    document.getElementById('order-delivery-form').style.opacity = '1';
-                    document.getElementById('order-delivery-form').style.pointerEvents = 'auto';
-                    
-                    document.getElementById('order-delivery-form').style.display = 'none';
-                    document.getElementById('tracking-info').classList.add('show');
-                    document.getElementById('tracking-number-display').textContent = trackingNum;
-                    
-                    console.log('Order created successfully:', result);
-                    console.log('Tracking Number:', trackingNum);
+                    // Extract tracking number with multiple fallback options
+                    const trackingNum = result.tracking_number || 
+                                       result.trackingNumber || 
+                                       (result.order && result.order.tracking_number) ||
+                                       `SCS${Date.now()}`;
+                    console.log('✓ Order created successfully', { tracking_number: trackingNum, full_response: result });
+                    showSuccess(trackingNum);
                 } else {
                     const errorMsg = result.error || result.message || 'Failed to place order';
-                    showMessage(`Error: ${errorMsg}`, 'error');
                     console.error('Server error:', result);
-                    
-                    document.getElementById('loading').classList.remove('show');
-                    document.getElementById('order-delivery-form').style.opacity = '1';
-                    document.getElementById('order-delivery-form').style.pointerEvents = 'auto';
+                    showAlert(`Error: ${errorMsg}`, 'error');
                 }
             } catch (error) {
+                showLoading(false);
                 console.error('Network error:', error);
-                showMessage(`Network error: ${error.message}. Make sure the server is running.`, 'error');
-                
-                document.getElementById('loading').classList.remove('show');
-                document.getElementById('order-delivery-form').style.opacity = '1';
-                document.getElementById('order-delivery-form').style.pointerEvents = 'auto';
+                showAlert(`Network Error: ${error.message}. Make sure the server is running.`, 'error');
             }
         });
 
-        // Initialize map when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            // No map to initialize, but we can set default coordinates or prompt for location
-            // For now, we'll rely on the 'Use My Location' buttons
-        });
+        // Reset button functionality
+        form.addEventListener('reset', resetPage);
+
+        console.log('✓ Order form script loaded and ready');
     </script>
 </body>
 </html>

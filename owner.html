@@ -6,74 +6,849 @@
     <title>Owner Dashboard - Smart Courier System</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/owner.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        #owner-map { height: 300px; width: 100%; margin-top: 15px; border-radius: 6px; }
-        .owner-toolbar { display:flex; gap:10px; align-items:center; margin:12px 0; }
-        .owner-toolbar input[type="search"] { flex:1; padding:8px 10px; border-radius:6px; border:1px solid #ddd; }
-        .owner-toolbar button { padding:8px 12px; border-radius:6px; background:#007BFF; color:#fff; border:none; cursor:pointer; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-content h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .owner-info {
+            color: #667eea;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #667eea;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .orders-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .orders-section h2 {
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 1.5rem;
+        }
+
+        .search-bar {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .search-bar button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        .search-bar button:hover {
+            background: #5568d3;
+        }
+
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .orders-table thead {
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .orders-table th {
+            padding: 15px;
+            text-align: left;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .orders-table td {
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
+            color: #666;
+        }
+
+        .orders-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #e7d4f5;
+            color: #764ba2;
+        }
+
+        .status-in-transit {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-delivered {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-processing {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .btn-view {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #5568d3;
+        }
+
+        .btn-edit {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #218838;
+        }
+
+        .btn-cancel {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #c82333;
+        }
+
+        .btn-delete {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #5a6268;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .modal-body p {
+            margin-bottom: 12px;
+        }
+
+        .modal-body strong {
+            color: #333;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal-footer button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .modal-footer .btn-close {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .modal-footer .btn-close:hover {
+            background: #dee2e6;
+        }
+
+        .modal-footer .btn-confirm {
+            background: #dc3545;
+            color: white;
+        }
+
+        .modal-footer .btn-confirm:hover {
+            background: #c82333;
+        }
+
+        .warning-text {
+            color: #dc3545;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header-content h1 {
+                font-size: 1.5rem;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .orders-table {
+                font-size: 0.9rem;
+            }
+
+            .orders-table th,
+            .orders-table td {
+                padding: 10px;
+            }
+        }
     </style>
 </head>
 <body>
-    <header>
-        <nav>
-            <a href="landing.html" class="logo">🚀 SCS</a>
-            <ul>
-                <li><a href="landing.html">Home</a></li>
-                <li><a href="landing.html#features">Features</a></li>
-                <li><a href="track.html">Track</a></li>
-                <li><a href="order-delivery.html">Order</a></li>
-                <li><a href="owner.html" class="active">Manage</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="contact.html">Contact</a></li>
-                <li><a href="login.html">Login</a></li>
-                <li><a href="signup.html" class="button">Sign Up</a></li>
-            </ul>
-        </nav>
-    </header>
-    <main class="owner-main">
-        <div class="owner-container">
-            <h2>Owner Dashboard</h2>
-            <p>Welcome to the owner dashboard. Here you can manage orders, users, and system settings.</p>
-            
-            <section id="order-management">
-                <h3>Order Management</h3>
-                <div class="owner-toolbar">
-                    <input type="search" id="order-search" placeholder="Search by tracking number, status or location">
-                    <button id="refresh-orders">Refresh</button>
-                    <button id="create-order">New Order</button>
-                </div>
-                <div id="orders-list">
-                    <!-- Orders will be loaded here by JavaScript -->
-                    <p>Loading orders...</p>
-                </div>
-                <div id="owner-map"></div>
-            </section>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="header-content">
+                <h1>Owner Dashboard</h1>
+                <div id="owner-ident" class="owner-info">Welcome, Owner!</div>
+            </div>
+            <div class="header-actions">
+                <button id="logout-btn" class="logout-btn">Logout</button>
+            </div>
+        </div>
 
-            <section id="user-management">
-                <h3>User Management</h3>
-                <div id="users-list">
-                    <!-- Users will be loaded here by JavaScript -->
-                    <p>Loading users...</p>
-                </div>
-            </section>
+        <!-- Stats Grid -->
+        <div class="dashboard-grid" id="stats-grid">
+            <div class="stat-card">
+                <h3>Total Orders</h3>
+                <div class="number" id="total-orders">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>In Transit</h3>
+                <div class="number" id="in-transit-orders">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Delivered</h3>
+                <div class="number" id="delivered-orders">0</div>
+            </div>
         </div>
-    </main>
-    <div id="server-status" class="server-status">
-        <span class="status-indicator"></span>
-        <span class="status-text">Checking server...</span>
+
+        <!-- Orders Section -->
+        <div class="orders-section">
+            <h2>Orders Management</h2>
+            
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Search by tracking number or customer...">
+                <button id="search-btn">Search</button>
+            </div>
+
+            <div id="error-message" class="error-message hidden"></div>
+            
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>Loading orders...</p>
+            </div>
+
+            <div id="orders-container">
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Tracking #</th>
+                            <th>Status</th>
+                            <th>Location</th>
+                            <th>Est. Delivery</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-list">
+                        <tr>
+                            <td colspan="5" class="empty-state">
+                                <p>No orders yet. Start creating orders!</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-    <footer>
-        <p>&copy; 2025 Smart Courier System (SCS). All rights reserved.</p>
-        <div style="margin-top: 12px; font-size: 0.9em; opacity: 0.9;">
-            <a href="landing.html">Home</a> | 
-            <a href="index.html">Track</a> | 
-            <a href="order-delivery.html">Order</a> | 
-            <a href="about.html">About</a> | 
-            <a href="contact.html">Contact</a>
+
+    <!-- Detail Modal -->
+    <div id="detail-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Order Details</div>
+            <div class="modal-body" id="modal-body">
+                <!-- Populated by JS -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-close" onclick="closeModal()">Close</button>
+            </div>
         </div>
-    </footer>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="js/owner.js"></script>
+    </div>
+
+    <!-- Cancel Modal -->
+    <div id="cancel-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Cancel Order</div>
+            <div class="modal-body">
+                <p>Are you sure you want to cancel this order?</p>
+                <p><strong id="cancel-tracking">Tracking: N/A</strong></p>
+                <p class="warning-text">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-close" onclick="closeModal()">Close</button>
+                <button class="btn-confirm" onclick="confirmCancel()">Yes, Cancel Order</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div id="delete-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Delete Order</div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this order? This will permanently remove it from the system.</p>
+                <p><strong id="delete-tracking">Tracking: N/A</strong></p>
+                <p class="warning-text">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-close" onclick="closeModal()">Close</button>
+                <button class="btn-confirm" onclick="confirmDelete()">Yes, Delete Order</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000';
+        let currentOrderData = null;
+        let currentOrderId = null;
+
+        // Get token from localStorage
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        // Make API request with token
+        async function apiCall(endpoint, method = 'GET', body = null) {
+            const token = getToken();
+            if (!token) {
+                window.location.href = 'owner-login.html';
+                return null;
+            }
+
+            const options = {
+                method,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, options);
+                
+                if (response.status === 401) {
+                    localStorage.removeItem('token');
+                    window.location.href = 'owner-login.html';
+                    return null;
+                }
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.statusText}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('API call failed:', error);
+                showError(error.message);
+                return null;
+            }
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+            setTimeout(() => {
+                errorDiv.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Modal functions
+        function openDetailModal(order) {
+            currentOrderData = order;
+            const trackingNum = order.tracking_number || order.trackingNumber || 'N/A';
+            const modalBody = document.getElementById('modal-body');
+            modalBody.innerHTML = `
+                <p><strong>Tracking Number:</strong> ${trackingNum}</p>
+                <p><strong>Status:</strong> ${order.status || 'N/A'}</p>
+                <p><strong>Location:</strong> ${order.location || order.current_location || 'N/A'}</p>
+                <p><strong>Estimated Delivery:</strong> ${order.estimated_delivery || 'Pending'}</p>
+                <p><strong>Service:</strong> ${order.service || 'N/A'}</p>
+                <p><strong>Weight:</strong> ${order.weight || 'N/A'} kg</p>
+                <p><strong>Description:</strong> ${order.parcel_description || 'N/A'}</p>
+                <p><strong>Created:</strong> ${order.created_at || 'N/A'}</p>
+            `;
+            document.getElementById('detail-modal').classList.add('show');
+        }
+
+        function openCancelModal(order) {
+            currentOrderData = order;
+            const trackingNum = order.tracking_number || order.trackingNumber || 'N/A';
+            document.getElementById('cancel-tracking').textContent = `Tracking: ${trackingNum}`;
+            document.getElementById('cancel-modal').classList.add('show');
+        }
+
+        function openDeleteModal(order) {
+            currentOrderData = order;
+            const trackingNum = order.tracking_number || order.trackingNumber || 'N/A';
+            document.getElementById('delete-tracking').textContent = `Tracking: ${trackingNum}`;
+            document.getElementById('delete-modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('detail-modal').classList.remove('show');
+            document.getElementById('cancel-modal').classList.remove('show');
+            document.getElementById('delete-modal').classList.remove('show');
+            document.getElementById('delete-account-modal').classList.remove('show');
+        }
+
+        async function confirmCancel() {
+            if (!currentOrderData) return;
+            
+            const trackingNum = currentOrderData.tracking_number || currentOrderData.trackingNumber;
+            showError('Processing cancellation...');
+            
+            // Update order status to 'Cancelled'
+            const result = await apiCall('/api/orders', 'PUT', {
+                tracking_number: trackingNum,
+                status: 'Cancelled'
+            });
+            
+            if (result) {
+                showError('Order cancelled successfully!');
+                closeModal();
+                loadOrders(); // Refresh the orders list
+            } else {
+                showError('Failed to cancel order. Please try again.');
+            }
+        }
+
+        async function confirmDelete() {
+            if (!currentOrderData) return;
+            
+            const trackingNum = currentOrderData.tracking_number || currentOrderData.trackingNumber;
+            showError('Processing deletion...');
+            
+            // Delete the order
+            const result = await apiCall(`/api/orders/${trackingNum}`, 'DELETE');
+            
+            if (result) {
+                showError('Order deleted successfully!');
+                closeModal();
+                loadOrders(); // Refresh the orders list
+            } else {
+                showError('Failed to delete order. Please try again.');
+            }
+        }
+
+        // Load owner info
+        async function loadOwnerInfo() {
+            document.getElementById('owner-ident').textContent = "Welcome, Owner!";
+        }
+
+        // Load orders
+        async function loadOrders() {
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('orders-list').innerHTML = '';
+
+            const data = await apiCall('/api/orders');
+            document.getElementById('loading').classList.add('hidden');
+
+            if (!data || !data.orders) {
+                document.getElementById('orders-list').innerHTML = `
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <p>No orders found</p>
+                        </td>
+                    </tr>
+                `;
+                updateStats([]);
+                return;
+            }
+
+            const orders = data.orders;
+            updateStats(orders);
+
+            if (orders.length === 0) {
+                document.getElementById('orders-list').innerHTML = `
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <p>No orders yet. Start creating orders!</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            const rows = orders.map(order => {
+                const status = order.status || 'pending';
+                const statusClass = `status-${status.toLowerCase().replace(' ', '-')}`;
+                const trackingNum = order.tracking_number || order.trackingNumber || 'N/A';
+                const location = order.current_location || order.currentLocation || 'In Progress';
+                const delivery = order.estimated_delivery || order.estimatedDelivery || 'Pending';
+
+                return `
+                    <tr>
+                        <td><strong>${trackingNum}</strong></td>
+                        <td><span class="status-badge ${statusClass}">${status}</span></td>
+                        <td>${location}</td>
+                        <td>${delivery}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-action btn-view" onclick="viewOrderDetails('${trackingNum}')">View</button>
+                                <button class="btn-action btn-edit" onclick="editOrder('${trackingNum}')">Edit</button>
+                                <button class="btn-action btn-cancel" onclick="cancelOrder('${trackingNum}')">Cancel</button>
+                                <button class="btn-action btn-delete" onclick="deleteOrder('${trackingNum}')">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('orders-list').innerHTML = rows;
+        }
+
+        // Button action handlers
+        function viewOrderDetails(trackingNum) {
+            const orders = document.querySelectorAll('#orders-list tr');
+            let order = null;
+            for (let row of orders) {
+                if (row.textContent.includes(trackingNum)) {
+                    order = { tracking_number: trackingNum };
+                    break;
+                }
+            }
+            
+            // Fetch actual order data
+            loadOrderAndShowModal(trackingNum, 'detail');
+        }
+
+        function editOrder(trackingNum) {
+            showError('Edit feature is coming soon. Please contact support for order modifications.');
+        }
+
+        function cancelOrder(trackingNum) {
+            loadOrderAndShowModal(trackingNum, 'cancel');
+        }
+
+        function deleteOrder(trackingNum) {
+            loadOrderAndShowModal(trackingNum, 'delete');
+        }
+
+        async function loadOrderAndShowModal(trackingNum, modalType) {
+            const data = await apiCall('/api/orders');
+            if (!data || !data.orders) return;
+            
+            const order = data.orders.find(o => (o.tracking_number || o.trackingNumber) === trackingNum);
+            if (!order) {
+                showError('Order not found');
+                return;
+            }
+
+            if (modalType === 'detail') {
+                openDetailModal(order);
+            } else if (modalType === 'cancel') {
+                openCancelModal(order);
+            } else if (modalType === 'delete') {
+                openDeleteModal(order);
+            }
+        }
+
+        // Update statistics
+        function updateStats(orders) {
+            const total = orders.length;
+            const inTransit = orders.filter(o => o.status && o.status.toLowerCase() === 'in transit').length;
+            const delivered = orders.filter(o => o.status && o.status.toLowerCase() === 'delivered').length;
+
+            document.getElementById('total-orders').textContent = total;
+            document.getElementById('in-transit-orders').textContent = inTransit;
+            document.getElementById('delivered-orders').textContent = delivered;
+        }
+
+        // Search orders
+        function filterOrders(searchTerm) {
+            const rows = document.querySelectorAll('#orders-list tr');
+            const term = searchTerm.toLowerCase();
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (term === '' || text.includes(term)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Event listeners
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.href = 'owner-login.html';
+        });
+
+        document.getElementById('search-btn').addEventListener('click', () => {
+            const searchTerm = document.getElementById('search-input').value;
+            filterOrders(searchTerm);
+        });
+
+        document.getElementById('search-input').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                const searchTerm = document.getElementById('search-input').value;
+                filterOrders(searchTerm);
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('detail-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'detail-modal') closeModal();
+        });
+
+        document.getElementById('cancel-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'cancel-modal') closeModal();
+        });
+
+        document.getElementById('delete-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'delete-modal') closeModal();
+        });
+
+        // Initialize
+        async function init() {
+            await loadOwnerInfo();
+            await loadOrders();
+        }
+
+        // Load on page load
+        init();
+
+        // Refresh orders every 30 seconds
+        setInterval(() => {
+            loadOrders();
+        }, 30000);
+    </script>
 </body>
 </html>

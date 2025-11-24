@@ -25,7 +25,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const ordersList = document.getElementById('orders-list');
         ordersList.innerHTML = '';
         try {
-            const response = await fetch(`/api/orders`);
+            const response = await fetch(`/api/orders`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
             const data = await response.json();
             if (response.ok) {
                 if (data.orders && data.orders.length > 0) {
@@ -61,7 +65,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const usersList = document.getElementById('users-list');
         usersList.innerHTML = '';
         try {
-            const response = await fetch(`/api/users`);
+            const response = await fetch(`/api/users`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
             const data = await response.json();
             if (response.ok) {
                 if (data.users && data.users.length > 0) {
@@ -122,7 +130,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const orderId = btn.dataset.id;
             if (!confirm('Delete this order?')) return;
             try {
-                const res = await fetch(`/api/orders/${orderId}`, { method: 'DELETE' });
+                const res = await fetch(`/api/orders/${orderId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
                 if (res.ok) { alert('Order deleted'); fetchOrders(); }
                 else { const d = await res.json(); alert(d.message || 'Delete failed'); }
             } catch (err) { alert('Error deleting'); }
@@ -141,7 +154,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const userId = btn.dataset.id;
             if (!confirm('Delete this user?')) return;
             try {
-                const res = await fetch(`/api/users/${userId}`, { method: 'DELETE' });
+                const res = await fetch(`/api/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
                 if (res.ok) { alert('User deleted'); fetchUsers(); }
                 else { const d = await res.json(); alert(d.message || 'Delete failed'); }
             } catch (err) { alert('Error deleting user'); }
@@ -226,7 +244,10 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const res = await fetch(`/api/orders/${order.id}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
                     body: JSON.stringify(payload)
                 });
                 const d = await res.json();
