@@ -150,6 +150,132 @@ if (DATABASE_URL && DATABASE_URL.startsWith('postgres')) {
       throw err;
     }
   };
+
+  // PostgreSQL database adapter object with all methods
+  db = {
+    getOrders: async () => {
+      const result = await client.query('SELECT * FROM orders ORDER BY id;');
+      return result.rows.map(r => ({
+        id: r.id,
+        tracking_number: r.tracking_number,
+        trackingNumber: r.tracking_number,
+        sender_name: r.sender_name,
+        sender_phone: r.sender_phone,
+        sender_address: r.sender_address,
+        sender_latitude: r.sender_latitude,
+        sender_longitude: r.sender_longitude,
+        receiver_name: r.receiver_name,
+        receiver_phone: r.receiver_phone,
+        receiver_address: r.receiver_address,
+        receiver_latitude: r.receiver_latitude,
+        receiver_longitude: r.receiver_longitude,
+        parcel_description: r.parcel_description,
+        value: r.value,
+        special_instructions: r.special_instructions,
+        carrier: r.carrier,
+        service: r.service,
+        weight: r.weight,
+        status: r.status,
+        location: r.location,
+        latitude: r.latitude,
+        longitude: r.longitude,
+        estimated_delivery: r.estimated_delivery,
+        history: Array.isArray(r.history) ? r.history : (r.history ? JSON.parse(r.history) : []),
+        user_id: r.user_id
+      }));
+    },
+    getOrderByTrackingNumber: async (tn) => {
+      const result = await client.query('SELECT * FROM orders WHERE tracking_number = $1;', [tn]);
+      return result.rows[0] || null;
+    },
+    createOrder: async (orderData) => {
+      const history = JSON.stringify(orderData.history || [{ status: 'Order Placed', location: orderData.location || 'Customer Request', date: new Date().toISOString().slice(0,10) }]);
+      const result = await client.query(
+        'INSERT INTO orders (tracking_number, trackingNumber, sender_name, sender_phone, sender_address, receiver_name, receiver_phone, receiver_address, parcel_description, value, special_instructions, carrier, service, weight, status, location, latitude, longitude, estimated_delivery, history, user_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21) RETURNING *;',
+        [orderData.tracking_number, orderData.trackingNumber, orderData.sender_name, orderData.sender_phone, orderData.sender_address, orderData.receiver_name, orderData.receiver_phone, orderData.receiver_address, orderData.parcel_description, orderData.value, orderData.special_instructions, orderData.carrier, orderData.service, orderData.weight, orderData.status || 'Pending', orderData.location, orderData.latitude, orderData.longitude, orderData.estimated_delivery, history, orderData.user_id]
+      );
+      return result.rows[0] || null;
+    },
+    updateOrder: async (id, data) => {
+      const setFields = [];
+      const values = [];
+      let paramCount = 1;
+      const updateableFields = ['status', 'location', 'latitude', 'longitude', 'estimated_delivery', 'carrier', 'service', 'weight', 'history'];
+      for (const field of updateableFields) {
+        if (data[field] !== undefined) {
+          setFields.push(`${field} = $${paramCount}`);
+          values.push(field === 'history' ? JSON.stringify(data[field]) : data[field]);
+          paramCount++;
+        }
+      }
+      if (setFields.length === 0) {
+        const result = await client.query('SELECT * FROM orders WHERE id = $1;', [id]);
+        return result.rows[0] || null;
+      }
+      values.push(id);
+      const result = await client.query(`UPDATE orders SET ${setFields.join(', ')} WHERE id = $${paramCount} RETURNING *;`, values);
+      return result.rows[0] || null;
+    },
+    deleteOrder: async (id) => {
+      const result = await client.query('DELETE FROM orders WHERE id = $1;', [id]);
+      return result.rowCount > 0;
+    },
+    getUsers: async () => {
+      const result = await client.query('SELECT id, username, email FROM users ORDER BY id;');
+      return result.rows;
+    },
+    getUserById: async (id) => {
+      const result = await client.query('SELECT * FROM users WHERE id = $1;', [id]);
+      return result.rows[0] || null;
+    },
+    getUserByUsername: async (username) => {
+      const result = await client.query('SELECT * FROM users WHERE username = $1;', [username]);
+      return result.rows[0] || null;
+    },
+    getUserByEmail: async (email) => {
+      const result = await client.query('SELECT * FROM users WHERE email = $1;', [email]);
+      return result.rows[0] || null;
+    },
+    createUser: async (userData) => {
+      const password_hash = await bcrypt.hash(userData.password, 10);
+      const result = await client.query(
+        'INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING *;',
+        [userData.username, userData.email, password_hash]
+      );
+      return result.rows[0] || null;
+    },
+    deleteUser: async (id) => {
+      const result = await client.query('DELETE FROM users WHERE id = $1;', [id]);
+      return result.rowCount > 0;
+    },
+    getOrdersByUserId: async (userId) => {
+      const result = await client.query('SELECT * FROM orders WHERE user_id = $1;', [userId]);
+      return result.rows.map(r => ({
+        id: r.id,
+        tracking_number: r.tracking_number,
+        trackingNumber: r.tracking_number,
+        sender_name: r.sender_name,
+        sender_phone: r.sender_phone,
+        sender_address: r.sender_address,
+        receiver_name: r.receiver_name,
+        receiver_phone: r.receiver_phone,
+        receiver_address: r.receiver_address,
+        parcel_description: r.parcel_description,
+        value: r.value,
+        special_instructions: r.special_instructions,
+        carrier: r.carrier,
+        service: r.service,
+        weight: r.weight,
+        status: r.status,
+        location: r.location,
+        latitude: r.latitude,
+        longitude: r.longitude,
+        estimated_delivery: r.estimated_delivery,
+        history: Array.isArray(r.history) ? r.history : (r.history ? JSON.parse(r.history) : []),
+        user_id: r.user_id
+      }));
+    }
+  };
 } else {
   const sqliteAdapter = require('./db-sqlite');
   db = sqliteAdapter;
@@ -288,11 +414,17 @@ app.post('/api/orders', async (req, res) => {
   }
 });
 
+// Delete order endpoint (with error handling)
 app.delete('/api/orders/:id', authenticateToken, async (req, res) => {
-  const id = Number(req.params.id);
-  const success = await db.deleteOrder(id);
-  if (!success) return res.status(404).json({ message: 'Order not found' });
-  res.json({ message: 'Order deleted successfully' });
+  try {
+    const id = Number(req.params.id);
+    const success = await db.deleteOrder(id);
+    if (!success) return res.status(404).json({ message: 'Order not found' });
+    res.json({ message: 'Order deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting order:', error);
+    res.status(500).json({ message: 'Error deleting order', error: error.message });
+  }
 });
 
 app.put('/api/orders/:id', authenticateToken, async (req, res) => {
