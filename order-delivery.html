@@ -351,7 +351,7 @@
 <body>
     <header>
         <nav>
-            <a href="landing.html" class="logo"><img src="ms-logo.png" alt="MS Logo" style="height: 40px;"></a>
+            <a href="landing.html" class="logo" title="Smart Courier System Home"><img src="ms-logo.png" alt="MS Logo"></a>
             <div class="hamburger">
                 <span></span>
                 <span></span>
@@ -397,9 +397,9 @@
                     <div class="form-grid full">
                         <div class="form-group">
                             <label>Address <span class="required">*</span></label>
-                            <div style="display: flex; gap: 10px; align-items: stretch;">
-                                <input type="text" id="sender-address" placeholder="e.g., 123 Main St, New York, NY 10001" required style="flex: 1;">
-                                <button type="button" id="get-location-btn" title="Get your current location" style="padding: 12px 20px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; white-space: nowrap;">📍 Get Location</button>
+                            <div class="form-input-group">
+                                <input type="text" id="sender-address" placeholder="e.g., 123 Main St, New York, NY 10001" required>
+                                <button type="button" id="get-location-btn" title="Get your current location" class="location-btn">📍 Get Location</button>
                             </div>
                         </div>
                     </div>
@@ -421,7 +421,7 @@
                     <div class="form-grid full">
                         <div class="form-group">
                             <label>City <span class="required">*</span></label>
-                            <select id="receiver-city" required>
+                            <select id="receiver-city" required title="Select Receiver City">
                                 <option value="">-- Select Receiver City --</option>
                             </select>
                         </div>

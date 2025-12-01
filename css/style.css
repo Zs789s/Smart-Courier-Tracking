@@ -765,3 +765,49 @@ footer a:hover {
     display: block;
     margin: 10px 0;
 }
+
+/* --- Logo Styles --- */
+.logo img {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+}
+
+/* --- Utility Classes --- */
+.flex-container {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+}
+
+.flex-1 {
+    flex: 1;
+}
+
+.location-btn {
+    padding: 12px 20px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.3s;
+}
+
+.location-btn:hover {
+    background: #5568d3;
+    transform: translateY(-2px);
+}
+
+/* --- Form Utilities --- */
+.form-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+}
+
+.form-input-group input {
+    flex: 1;
+}

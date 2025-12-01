@@ -304,18 +304,6 @@
 .phone-result-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}; 
-    border: none; 
-    cursor: pointer;
-    color: #fff;
-    font-weight: 500;
-    transition: all 0.3s;
-    box-shadow: 0 2px 8px rgba(74, 125, 255, 0.2);
-}
-
-.phone-result-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(74, 125, 255, 0.3);
 }
 
 /* ========== MOBILE RESPONSIVE ========== */
