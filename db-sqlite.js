@@ -71,16 +71,16 @@ async function createOrder(orderData) {
     const sql = `INSERT INTO orders (
         tracking_number, trackingNumber, sender_name, sender_phone, sender_address,
         receiver_name, receiver_phone, receiver_address, parcel_description, value,
-        special_instructions, carrier, service, weight, status, location, latitude, longitude,
+        special_instructions, carrier, service, country, weight, status, location, latitude, longitude,
         estimated_delivery, history
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
     const history = JSON.stringify(orderData.history || [{ status: 'Order Placed', location: orderData.location || 'Customer Request', date: new Date().toISOString().slice(0,10) }]);
 
     const params = [
         orderData.tracking_number, orderData.trackingNumber, orderData.sender_name, orderData.sender_phone, orderData.sender_address,
         orderData.receiver_name, orderData.receiver_phone, orderData.receiver_address, orderData.parcel_description, orderData.value,
-        orderData.special_instructions, orderData.carrier, orderData.service, orderData.weight, orderData.status,
+        orderData.special_instructions, orderData.carrier, orderData.service, orderData.country, orderData.weight, orderData.status,
         orderData.location, orderData.latitude, orderData.longitude, orderData.estimated_delivery, history
     ];
     const result = await run(sql, params);

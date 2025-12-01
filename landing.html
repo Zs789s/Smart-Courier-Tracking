@@ -266,47 +266,6 @@
             color: white;
         }
 
-        /* Testimonials Section */
-        .testimonials {
-            padding: 80px 20px;
-            background: white;
-        }
-
-        .testimonials-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .testimonials-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-        }
-
-        .testimonial-card {
-            background: #f8f9fa;
-            padding: 30px;
-            border-radius: 10px;
-            border-left: 4px solid #667eea;
-        }
-
-        .testimonial-text {
-            color: #555;
-            margin-bottom: 15px;
-            line-height: 1.7;
-            font-style: italic;
-        }
-
-        .testimonial-author {
-            font-weight: 600;
-            color: #333;
-        }
-
-        .testimonial-role {
-            color: #667eea;
-            font-size: 14px;
-        }
-
         /* Footer Enhancement */
         footer {
             background: #222;
@@ -352,7 +311,12 @@
 <body>
     <header>
         <nav>
-            <a href="landing.html" class="logo"><img src="lion-logo.svg" alt="SCS"></a>
+            <a href="landing.html" class="logo"><img src="ms-logo.png" alt="MS Logo" style="height: 40px;"></a>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
             <ul>
                 <li><a href="landing.html" class="active">Home</a></li>
                 <li><a href="landing.html#features">Features</a></li>
@@ -360,8 +324,6 @@
                 <li><a href="order-delivery.html">Order</a></li>
                 <li><a href="user-dashboard.html">Dashboard</a></li>
                 <li><a href="owner.html">Manage</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="contact.html">Contact</a></li>
                 <li><a href="login.html">Login</a></li>
                 <li><a href="signup.html" class="button">Sign Up</a></li>
             </ul>
@@ -373,7 +335,7 @@
         <div class="hero-content">
             <h1>📦 Smart Courier System</h1>
             <p>Fast, Reliable & Transparent Delivery Service</p>
-            <p style="font-size: 14px; opacity: 0.8;">Real-time tracking, multiple delivery options, and complete peace of mind</p>
+            <p class="subtitle">Real-time tracking, multiple delivery options, and complete peace of mind</p>
             <div class="hero-buttons">
                 <a href="order-delivery.html" class="btn-hero btn-hero-primary">📋 Place an Order</a>
                 <a href="#track" class="btn-hero btn-hero-secondary">🔍 Track Package</a>
@@ -382,26 +344,26 @@
     </section>
 
     <!-- Track Section -->
-    <section id="track" style="padding: 60px 20px; background: white;">
-        <div style="max-width: 800px; margin: 0 auto;">
-            <h2 style="text-align: center; font-size: 32px; margin-bottom: 30px; color: #333;">🔍 Track Your Package</h2>
-            <form style="display: flex; gap: 10px;">
+    <section id="track" class="track-section">
+        <div class="track-content">
+            <h2 class="track-heading">🔍 Track Your Package</h2>
+            <form class="form-container">
                 <input 
                     type="text" 
                     placeholder="Enter tracking number (e.g., SCS12345)" 
-                    style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
+                    class="track-input"
                     id="quick-track-input"
                 >
                 <button 
                     type="button" 
                     onclick="quickTrack()" 
-                    style="padding: 12px 30px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;"
+                    class="track-button"
                 >
                     Track Now
                 </button>
             </form>
-            <p style="text-align: center; color: #666; margin-top: 15px; font-size: 14px;">
-                Or <a href="index.html" style="color: #667eea;">use the interactive map tracker</a> for detailed information
+            <p class="track-hint">
+                Or <a href="index.html" class="track-link">use the interactive map tracker</a> for detailed information
             </p>
         </div>
     </section>
@@ -492,30 +454,6 @@
         </div>
     </section>
 
-    <!-- Testimonials Section -->
-    <section class="testimonials">
-        <div class="testimonials-container">
-            <h2 class="section-title">What Our Customers Say</h2>
-            <div class="testimonials-grid">
-                <div class="testimonial-card">
-                    <div class="testimonial-text">"SCS revolutionized how I send packages. The real-time tracking is incredible!"</div>
-                    <div class="testimonial-author">Sarah Johnson</div>
-                    <div class="testimonial-role">E-commerce Business Owner</div>
-                </div>
-                <div class="testimonial-card">
-                    <div class="testimonial-text">"Fast, reliable, and affordable. SCS is now my go-to courier service for all shipments."</div>
-                    <div class="testimonial-author">Ahmed Hassan</div>
-                    <div class="testimonial-role">Small Business Owner</div>
-                </div>
-                <div class="testimonial-card">
-                    <div class="testimonial-text">"The drone delivery option is a game-changer. Received my package in hours!"</div>
-                    <div class="testimonial-author">Maria Garcia</div>
-                    <div class="testimonial-role">Tech Enthusiast</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- CTA Section -->
     <section class="cta">
         <div class="cta-container">
@@ -530,7 +468,7 @@
 
     <footer>
         <p>&copy; 2025 Smart Courier System (SCS). All rights reserved.</p>
-        <div style="margin-top: 12px; font-size: 0.9em; opacity: 0.9;">
+        <div class="footer-note">
             <a href="landing.html">Home</a> | 
             <a href="index.html">Track</a> | 
             <a href="order-delivery.html">Order</a> | 
@@ -539,6 +477,7 @@
         </div>
     </footer>
 
+    <script src="js/mobile-menu.js"></script>
     <script>
         function quickTrack() {
             const trackingNum = document.getElementById('quick-track-input').value.trim().toUpperCase();

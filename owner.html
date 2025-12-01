@@ -415,6 +415,24 @@
     </style>
 </head>
 <body>
+    <header>
+        <nav>
+            <a href="landing.html" class="logo"><img src="ms-logo.png" alt="MS Logo" style="height: 40px;"></a>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul>
+                <li><a href="landing.html">Home</a></li>
+                <li><a href="landing.html#features">Features</a></li>
+                <li><a href="track.html">Track</a></li>
+                <li><a href="order-delivery.html">Order</a></li>
+                <li><a href="owner.html" class="active">Manage</a></li>
+                <li><a href="about.html">About</a></li>
+            </ul>
+        </nav>
+    </header>
     <div class="dashboard-container">
         <!-- Header -->
         <div class="dashboard-header">
@@ -624,18 +642,26 @@
             document.getElementById('detail-modal').classList.remove('show');
             document.getElementById('cancel-modal').classList.remove('show');
             document.getElementById('delete-modal').classList.remove('show');
-            document.getElementById('delete-account-modal').classList.remove('show');
+            // Safely attempt to hide the dynamically created edit modal
+            const editModal = document.getElementById('owner-edit-modal');
+            if (editModal) {
+                editModal.style.display = 'none';
+            }
         }
 
         async function confirmCancel() {
             if (!currentOrderData) return;
             
-            const trackingNum = currentOrderData.tracking_number || currentOrderData.trackingNumber;
+            const orderId = currentOrderData.id;
+            if (!orderId) {
+                showError('Error: Order ID not found for cancellation.');
+                return;
+            }
+
             showError('Processing cancellation...');
             
-            // Update order status to 'Cancelled'
-            const result = await apiCall('/api/orders', 'PUT', {
-                tracking_number: trackingNum,
+            // Update order status to 'Cancelled' using order ID
+            const result = await apiCall(`/api/orders/${orderId}`, 'PUT', {
                 status: 'Cancelled'
             });
             
@@ -651,11 +677,16 @@
         async function confirmDelete() {
             if (!currentOrderData) return;
             
-            const trackingNum = currentOrderData.tracking_number || currentOrderData.trackingNumber;
+            const orderId = currentOrderData.id;
+            if (!orderId) {
+                showError('Error: Order ID not found. Cannot delete.');
+                return;
+            }
+            
             showError('Processing deletion...');
             
-            // Delete the order
-            const result = await apiCall(`/api/orders/${trackingNum}`, 'DELETE');
+            // Delete the order using numeric ID
+            const result = await apiCall(`/api/orders/${orderId}`, 'DELETE');
             
             if (result) {
                 showError('Order deleted successfully!');
@@ -735,21 +766,11 @@
 
         // Button action handlers
         function viewOrderDetails(trackingNum) {
-            const orders = document.querySelectorAll('#orders-list tr');
-            let order = null;
-            for (let row of orders) {
-                if (row.textContent.includes(trackingNum)) {
-                    order = { tracking_number: trackingNum };
-                    break;
-                }
-            }
-            
-            // Fetch actual order data
             loadOrderAndShowModal(trackingNum, 'detail');
         }
 
         function editOrder(trackingNum) {
-            showError('Edit feature is coming soon. Please contact support for order modifications.');
+            loadOrderAndShowModal(trackingNum, 'edit');
         }
 
         function cancelOrder(trackingNum) {
@@ -769,14 +790,71 @@
                 showError('Order not found');
                 return;
             }
+            currentOrderData = order; // Set current order for use in modals
 
             if (modalType === 'detail') {
                 openDetailModal(order);
+            } else if (modalType === 'edit') {
+                openEditModal(order);
             } else if (modalType === 'cancel') {
                 openCancelModal(order);
             } else if (modalType === 'delete') {
                 openDeleteModal(order);
             }
+        }
+
+        // Edit Modal functions (moved from js/owner.js)
+        function openEditModal(order) {
+            let modal = document.getElementById('owner-edit-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'owner-edit-modal';
+                modal.className = 'modal'; // Add modal class for styling
+                modal.innerHTML = `
+                    <div class="modal-backdrop"></div>
+                    <div class="modal-card">
+                        <h3>Edit Order <span id="modal-tracking"></span></h3>
+                        <label>Status<input id="modal-status"></label>
+                        <label>Location<input id="modal-location"></label>
+                        <label>Latitude<input id="modal-lat" type="number" step="any"></label>
+                        <label>Longitude<input id="modal-lng" type="number" step="any"></label>
+                        <label>Estimated Delivery<input id="modal-est"></label>
+                        <div class="modal-actions">
+                            <button id="modal-save">Save</button>
+                            <button id="modal-cancel-edit">Cancel</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                // Add event listener for the new modal's cancel button
+                document.getElementById('modal-cancel-edit').onclick = () => { modal.style.display = 'none'; };
+            }
+            document.getElementById('modal-tracking').textContent = order.tracking_number;
+            document.getElementById('modal-status').value = order.status || '';
+            document.getElementById('modal-location').value = order.location || '';
+            document.getElementById('modal-lat').value = order.latitude || '';
+            document.getElementById('modal-lng').value = order.longitude || '';
+            document.getElementById('modal-est').value = order.estimated_delivery || '';
+
+            modal.style.display = 'block';
+
+            document.getElementById('modal-save').onclick = async () => {
+                const payload = {
+                    status: document.getElementById('modal-status').value,
+                    location: document.getElementById('modal-location').value,
+                    latitude: parseFloat(document.getElementById('modal-lat').value) || 0,
+                    longitude: parseFloat(document.getElementById('modal-lng').value) || 0,
+                    estimated_delivery: document.getElementById('modal-est').value
+                };
+                try {
+                    const res = await apiCall(`/api/orders/${order.id}`, 'PUT', payload);
+                    if (res) {
+                        showError('Order updated');
+                        modal.style.display = 'none';
+                        loadOrders();
+                    } else { showError(res.message || 'Update failed'); }
+                } catch (err) { showError('Error updating order'); }
+            };
         }
 
         // Update statistics
@@ -836,6 +914,14 @@
             if (e.target.id === 'delete-modal') closeModal();
         });
 
+        // Event listener for dynamically created edit modal backdrop
+        document.addEventListener('click', (e) => {
+            const editModal = document.getElementById('owner-edit-modal');
+            if (editModal && e.target.classList.contains('modal-backdrop')) {
+                closeModal();
+            }
+        });
+
         // Initialize
         async function init() {
             await loadOwnerInfo();
@@ -850,5 +936,6 @@
             loadOrders();
         }, 30000);
     </script>
+    <script src="js/mobile-menu.js"></script>
 </body>
 </html>

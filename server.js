@@ -27,10 +27,10 @@ function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
-  if (token == null) return res.sendStatus(401); // No token
+  if (token == null) return res.status(401).json({ message: 'Missing Authorization token' }); // No token
 
   jwt.verify(token, SECRET, (err, user) => {
-    if (err) return res.sendStatus(403); // Invalid token
+    if (err) return res.status(403).json({ message: 'Invalid or expired token' }); // Invalid token
     req.user = user;
     next();
   });
@@ -60,7 +60,7 @@ if (DATABASE_URL && DATABASE_URL.startsWith('postgres')) {
       const orders = ordersRes.rows.map(r => ({
         id: r.id,
         tracking_number: r.tracking_number,
-        trackingNumber: r.trackingnumber || r.tracking_number,
+        trackingNumber: r.tracking_number,
         sender_name: r.sender_name,
         sender_phone: r.sender_phone,
         sender_address: r.sender_address,
@@ -77,6 +77,7 @@ if (DATABASE_URL && DATABASE_URL.startsWith('postgres')) {
         carrier: r.carrier,
         service: r.service,
         weight: r.weight,
+        country: r.country,
         status: r.status,
         location: r.location,
         latitude: r.latitude,
@@ -162,19 +163,16 @@ if (DATABASE_URL && DATABASE_URL.startsWith('postgres')) {
         sender_name: r.sender_name,
         sender_phone: r.sender_phone,
         sender_address: r.sender_address,
-        sender_latitude: r.sender_latitude,
-        sender_longitude: r.sender_longitude,
         receiver_name: r.receiver_name,
         receiver_phone: r.receiver_phone,
         receiver_address: r.receiver_address,
-        receiver_latitude: r.receiver_latitude,
-        receiver_longitude: r.receiver_longitude,
         parcel_description: r.parcel_description,
         value: r.value,
         special_instructions: r.special_instructions,
         carrier: r.carrier,
         service: r.service,
         weight: r.weight,
+        country: r.country,
         status: r.status,
         location: r.location,
         latitude: r.latitude,
@@ -191,8 +189,8 @@ if (DATABASE_URL && DATABASE_URL.startsWith('postgres')) {
     createOrder: async (orderData) => {
       const history = JSON.stringify(orderData.history || [{ status: 'Order Placed', location: orderData.location || 'Customer Request', date: new Date().toISOString().slice(0,10) }]);
       const result = await client.query(
-        'INSERT INTO orders (tracking_number, trackingNumber, sender_name, sender_phone, sender_address, receiver_name, receiver_phone, receiver_address, parcel_description, value, special_instructions, carrier, service, weight, status, location, latitude, longitude, estimated_delivery, history, user_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21) RETURNING *;',
-        [orderData.tracking_number, orderData.trackingNumber, orderData.sender_name, orderData.sender_phone, orderData.sender_address, orderData.receiver_name, orderData.receiver_phone, orderData.receiver_address, orderData.parcel_description, orderData.value, orderData.special_instructions, orderData.carrier, orderData.service, orderData.weight, orderData.status || 'Pending', orderData.location, orderData.latitude, orderData.longitude, orderData.estimated_delivery, history, orderData.user_id]
+        'INSERT INTO orders (tracking_number, trackingNumber, sender_name, sender_phone, sender_address, receiver_name, receiver_phone, receiver_address, parcel_description, value, special_instructions, carrier, service, country, weight, status, location, latitude, longitude, estimated_delivery, history, user_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22) RETURNING *;',
+        [orderData.tracking_number, orderData.trackingNumber, orderData.sender_name, orderData.sender_phone, orderData.sender_address, orderData.receiver_name, orderData.receiver_phone, orderData.receiver_address, orderData.parcel_description, orderData.value, orderData.special_instructions, orderData.carrier, orderData.service, orderData.country, orderData.weight, orderData.status || 'Pending', orderData.location, orderData.latitude, orderData.longitude, orderData.estimated_delivery, history, orderData.user_id]
       );
       return result.rows[0] || null;
     },
@@ -266,6 +264,7 @@ if (DATABASE_URL && DATABASE_URL.startsWith('postgres')) {
         carrier: r.carrier,
         service: r.service,
         weight: r.weight,
+        country: r.country,
         status: r.status,
         location: r.location,
         latitude: r.latitude,
@@ -392,6 +391,7 @@ app.post('/api/orders', async (req, res) => {
       special_instructions: data.special_instructions || data.specialInstructions || '',
       carrier: data.carrier || 'SCS Logistics',
       service: data.service || 'Standard',
+      country: data.country || 'GLOBAL',
       weight: data.weight || 0,
       status: data.status || 'Pending',
       location: data.location || 'Order Placed',
@@ -418,12 +418,46 @@ app.post('/api/orders', async (req, res) => {
 app.delete('/api/orders/:id', authenticateToken, async (req, res) => {
   try {
     const id = Number(req.params.id);
+    if (!Number.isFinite(id) || id <= 0) return res.status(400).json({ message: 'Invalid order id' });
     const success = await db.deleteOrder(id);
     if (!success) return res.status(404).json({ message: 'Order not found' });
-    res.json({ message: 'Order deleted successfully' });
+    res.json({ message: 'Order deleted successfully', id });
   } catch (error) {
     console.error('Error deleting order:', error);
     res.status(500).json({ message: 'Error deleting order', error: error.message });
+  }
+});
+
+// Dev-friendly: delete by tracking number (protected)
+app.delete('/api/orders/track/:tracking_number', authenticateToken, async (req, res) => {
+  try {
+    const tn = String(req.params.tracking_number || '').trim();
+    if (!tn) return res.status(400).json({ message: 'Missing tracking number' });
+
+    // Try adapter-implemented method first
+    let order = null;
+    if (typeof db.getOrderByTrackingNumber === 'function') {
+      order = await db.getOrderByTrackingNumber(tn);
+      // normalize if the sqlite adapter returns row object
+      if (order && order.tracking_number === undefined && order.trackingNumber) order.tracking_number = order.trackingNumber;
+    }
+    // Fallback scan
+    if (!order) {
+      const orders = await db.getOrders();
+      order = orders.find(o => (o.tracking_number === tn) || (o.trackingNumber === tn));
+    }
+
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    const id = order.id;
+    if (!id) return res.status(500).json({ message: 'Order has no id, cannot delete' });
+
+    const success = await db.deleteOrder(id);
+    if (!success) return res.status(500).json({ message: 'Failed to delete order' });
+    return res.json({ message: 'Order deleted successfully', tracking_number: tn, id });
+  } catch (err) {
+    console.error('Error deleting order by tracking number:', err);
+    return res.status(500).json({ message: 'Error deleting order', error: err.message });
   }
 });
 

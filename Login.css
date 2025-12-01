@@ -7,10 +7,11 @@
 }
 
 .login-container {
-    background: #fff;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
     padding: 40px;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    box-shadow: 0 15px 40px rgba(74, 125, 255, 0.12);
+    border: 1px solid rgba(74, 125, 255, 0.1);
     width: 100%;
     max-width: 400px;
     text-align: center;
@@ -18,7 +19,8 @@
 
 .login-container h2 {
     margin-bottom: 20px;
-    color: #333;
+    color: #4a7dff;
+    font-weight: 700;
 }
 
 .form-group {
@@ -43,17 +45,20 @@
 .login-button {
     width: 100%;
     padding: 12px;
-    background: #007BFF;
+    background: linear-gradient(135deg, #4a7dff 0%, #6a4dff 100%);
     color: #fff;
     border: none;
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 1em;
-    transition: background-color 0.3s;
+    transition: all 0.3s;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(74, 125, 255, 0.2);
 }
 
 .login-button:hover {
-    background: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(74, 125, 255, 0.35);
 }
 
 .signup-link {

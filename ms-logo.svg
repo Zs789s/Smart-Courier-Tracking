@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="msGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accentLine" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#e94560;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d62839;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="200" height="200" fill="#f8f8f8"/>
+
+  <!-- MS Text - Bold modern style -->
+  <text x="100" y="130" font-family="'Segoe UI', Arial, sans-serif" font-size="96" font-weight="700" text-anchor="middle" fill="url(#msGradient)">MS</text>
+
+  <!-- Accent line -->
+  <line x1="40" y1="150" x2="160" y2="150" stroke="url(#accentLine)" stroke-width="3" stroke-linecap="round"/>
+</svg>

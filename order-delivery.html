@@ -351,15 +351,18 @@
 <body>
     <header>
         <nav>
-            <a href="landing.html" class="logo"><img src="lion-logo.svg" alt="SCS"></a>
+            <a href="landing.html" class="logo"><img src="ms-logo.png" alt="MS Logo" style="height: 40px;"></a>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
             <ul>
                 <li><a href="landing.html">Home</a></li>
                 <li><a href="landing.html#features">Features</a></li>
                 <li><a href="track.html">Track</a></li>
                 <li><a href="order-delivery.html" class="active">Order</a></li>
                 <li><a href="owner.html">Manage</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="contact.html">Contact</a></li>
                 <li><a href="login.html">Login</a></li>
                 <li><a href="signup.html" class="button">Sign Up</a></li>
             </ul>
@@ -394,7 +397,10 @@
                     <div class="form-grid full">
                         <div class="form-group">
                             <label>Address <span class="required">*</span></label>
-                            <input type="text" id="sender-address" placeholder="e.g., 123 Main St, New York, NY 10001" required>
+                            <div style="display: flex; gap: 10px; align-items: stretch;">
+                                <input type="text" id="sender-address" placeholder="e.g., 123 Main St, New York, NY 10001" required style="flex: 1;">
+                                <button type="button" id="get-location-btn" title="Get your current location" style="padding: 12px 20px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; white-space: nowrap;">📍 Get Location</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -410,6 +416,14 @@
                         <div class="form-group">
                             <label>Phone Number <span class="required">*</span></label>
                             <input type="tel" id="receiver-phone" placeholder="e.g., +1-234-567-8210" required>
+                        </div>
+                    </div>
+                    <div class="form-grid full">
+                        <div class="form-group">
+                            <label>City <span class="required">*</span></label>
+                            <select id="receiver-city" required>
+                                <option value="">-- Select Receiver City --</option>
+                            </select>
                         </div>
                     </div>
                     <div class="form-grid full">
@@ -454,6 +468,48 @@
                                 <option value="same-day">🚀 Same Day Delivery - Within 12 hours - ₹24.99</option>
                                 <option value="p2p-local">👥 P2P In Local - Within 3 hours - ₹19.99</option>
                                 <option value="drone">🚁 Drone Delivery - 2-6 hours (limited areas) - ₹35.99</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Destination Country <span class="required">*</span></label>
+                            <select id="country-select" required title="Destination Country">
+                                <option value="GLOBAL">Select Country</option>
+                                <option value="US">United States</option>
+                                <option value="GB">United Kingdom</option>
+                                <option value="CA">Canada</option>
+                                <option value="AU">Australia</option>
+                                <option value="IN" selected>India</option>
+                                <option value="DE">Germany</option>
+                                <option value="FR">France</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Destination City <span class="required">*</span></label>
+                            <select id="city-select" title="Select destination city in India">
+                                <option value="">Select City</option>
+                                <option value="Delhi">Delhi</option>
+                                <option value="Mumbai">Mumbai</option>
+                                <option value="Bangalore">Bangalore</option>
+                                <option value="Hyderabad">Hyderabad</option>
+                                <option value="Chennai">Chennai</option>
+                                <option value="Kolkata">Kolkata</option>
+                                <option value="Pune">Pune</option>
+                                <option value="Ahmedabad">Ahmedabad</option>
+                                <option value="Jaipur">Jaipur</option>
+                                <option value="Lucknow">Lucknow</option>
+                                <option value="Chandigarh">Chandigarh</option>
+                                <option value="Indore">Indore</option>
+                                <option value="Bhopal">Bhopal</option>
+                                <option value="Gwalior">Gwalior</option>
+                                <option value="Surat">Surat</option>
+                                <option value="Nagpur">Nagpur</option>
+                                <option value="Vadodara">Vadodara</option>
+                                <option value="Ranchi">Ranchi</option>
+                                <option value="Patna">Patna</option>
+                                <option value="Guwahati">Guwahati</option>
+                                <option value="Kochi">Kochi</option>
+                                <option value="Visakhapatnam">Visakhapatnam</option>
+                                <option value="Coimbatore">Coimbatore</option>
                             </select>
                         </div>
                     </div>
@@ -515,17 +571,111 @@
             <a href="landing.html">Home</a> | 
             <a href="track.html">Track</a> | 
             <a href="order-delivery.html">Order</a> | 
-            <a href="about.html">About</a> | 
-            <a href="contact.html">Contact</a>
+            <a href="about.html">About</a> 
         </div>
     </footer>
 
+    <script src="js/indian-cities.js"></script>
     <script>
         const form = document.getElementById('order-form');
         const alertMsg = document.getElementById('alert-message');
         const loadingDiv = document.getElementById('loading');
         const successDiv = document.getElementById('success');
         const trackingDisplay = document.getElementById('display-tracking-number');
+        
+        // Populate receiver city dropdown
+        function populateCityDropdown() {
+            const citySelect = document.getElementById('receiver-city');
+            if (typeof indianCities !== 'undefined') {
+                Object.keys(indianCities).forEach(cityName => {
+                    if (cityName !== 'India') {
+                        const option = document.createElement('option');
+                        option.value = cityName;
+                        option.textContent = `${cityName} (${indianCities[cityName].state})`;
+                        citySelect.appendChild(option);
+                    }
+                });
+            }
+        }
+        
+        // Get user's current location and find nearest Indian city
+        function getUserLocation() {
+            const btn = document.getElementById('get-location-btn');
+            const senderAddress = document.getElementById('sender-address');
+            
+            if (!navigator.geolocation) {
+                showAlert('Geolocation not supported in your browser', 'error');
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.textContent = '📍 Getting...';
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    findNearestCity(lat, lng, senderAddress);
+                    btn.disabled = false;
+                    btn.textContent = '📍 Get Location';
+                },
+                (error) => {
+                    showAlert('Could not get location. Please allow location access.', 'error');
+                    btn.disabled = false;
+                    btn.textContent = '📍 Get Location';
+                }
+            );
+        }
+        
+        // Calculate distance between two coordinates
+        function calculateDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+        
+        // Find nearest Indian city and set as sender location
+        function findNearestCity(userLat, userLng, addressField) {
+            if (typeof indianCities === 'undefined') {
+                showAlert('City database not loaded', 'error');
+                return;
+            }
+            
+            let nearestCity = null;
+            let minDistance = Infinity;
+            
+            Object.keys(indianCities).forEach(cityName => {
+                if (cityName !== 'India') {
+                    const city = indianCities[cityName];
+                    const distance = calculateDistance(userLat, userLng, city.lat, city.lng);
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        nearestCity = cityName;
+                    }
+                }
+            });
+            
+            if (nearestCity) {
+                addressField.value = `${nearestCity}, ${indianCities[nearestCity].state}, India`;
+                showAlert(`✓ Location set to ${nearestCity} (${Math.round(minDistance)} km away)`, 'success');
+            } else {
+                showAlert('Could not find nearest city', 'error');
+            }
+        }
+        
+        // Event listener for get location button
+        document.addEventListener('DOMContentLoaded', () => {
+            populateCityDropdown();
+            const getLocBtn = document.getElementById('get-location-btn');
+            if (getLocBtn) {
+                getLocBtn.addEventListener('click', getUserLocation);
+            }
+        });
 
         function showAlert(message, type = 'success') {
             alertMsg.textContent = message;
@@ -576,6 +726,8 @@
                 receiver_address: document.getElementById('receiver-address').value.trim(),
                 parcel_description: document.getElementById('parcel-description').value.trim(),
                 service: document.getElementById('delivery-type').value,
+                country: (document.getElementById('country-select') && document.getElementById('country-select').value) || 'GLOBAL',
+                city: (document.getElementById('city-select') && document.getElementById('city-select').value) || '',
                 weight: parseFloat(document.getElementById('weight').value),
                 value: parseFloat(document.getElementById('value').value) || 0,
                 special_instructions: document.getElementById('special-instructions').value.trim(),
@@ -633,5 +785,7 @@
 
         console.log('✓ Order form script loaded and ready');
     </script>
+    <script src="js/indian-cities.js"></script>
+    <script src="js/mobile-menu.js"></script>
 </body>
 </html>

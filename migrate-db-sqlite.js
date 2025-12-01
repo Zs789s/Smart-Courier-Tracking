@@ -67,6 +67,7 @@ async function runMigration() {
         longitude REAL,
         estimated_delivery TEXT,
         history TEXT,
+        country TEXT DEFAULT 'GLOBAL',
         user_id INTEGER,
         FOREIGN KEY(user_id) REFERENCES users(id)
       );

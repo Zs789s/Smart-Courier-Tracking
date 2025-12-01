@@ -8,10 +8,11 @@
 }
 
 .owner-container {
-    background: #fff;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
     padding: 40px;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    box-shadow: 0 15px 40px rgba(74, 125, 255, 0.12);
+    border: 1px solid rgba(74, 125, 255, 0.1);
     width: 100%;
     max-width: 900px;
     text-align: left;
@@ -19,16 +20,18 @@
 
 .owner-container h2 {
     margin-bottom: 20px;
-    color: #333;
+    color: #4a7dff;
     text-align: center;
+    font-weight: 700;
 }
 
 .owner-container h3 {
     margin-top: 30px;
     margin-bottom: 15px;
-    color: #007BFF;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 5px;
+    color: #4a7dff;
+    border-bottom: 3px solid #4a7dff;
+    padding-bottom: 8px;
+    font-weight: 600;
 }
 
 #order-management, #user-management {
@@ -36,14 +39,21 @@
 }
 
 .order-item, .user-item {
-    background: #fdfdfd;
-    border: 1px solid #eee;
-    border-radius: 5px;
+    background: #f8f9fa;
+    border: 1px solid rgba(74, 125, 255, 0.1);
+    border-radius: 8px;
     padding: 15px;
     margin-bottom: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    transition: all 0.3s;
+}
+
+.order-item:hover, .user-item:hover {
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(74, 125, 255, 0.1);
+    border-color: rgba(74, 125, 255, 0.2);
 }
 
 .order-item p, .user-item p {
@@ -57,17 +67,20 @@
 }
 
 .order-item button, .user-item button {
-    background: #dc3545;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
     color: #fff;
     border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
+    padding: 8px 14px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.2);
 }
 
 .order-item button:hover, .user-item button:hover {
-    background: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 107, 107, 0.3);
 }
 
 .server-status {
@@ -128,3 +141,134 @@
 .modal-actions #modal-cancel { background:#6c757d; color:#fff; }
 
 #owner-edit-modal { display:none; }
+
+/* ========== MOBILE RESPONSIVE ========== */
+
+/* Tablet & Small Devices (768px and below) */
+@media (max-width: 768px) {
+    .owner-main {
+        padding: 15px;
+        min-height: 0;
+    }
+    
+    .owner-container {
+        padding: 25px 20px;
+        max-width: 100%;
+    }
+    
+    .owner-container h2 {
+        font-size: 1.5em;
+        margin-bottom: 15px;
+    }
+    
+    .owner-container h3 {
+        font-size: 1.2em;
+        margin-top: 20px;
+        margin-bottom: 12px;
+    }
+    
+    .order-item, .user-item {
+        flex-wrap: wrap;
+        padding: 12px;
+        margin-bottom: 8px;
+    }
+    
+    .order-item p, .user-item p {
+        width: 100%;
+        margin: 4px 0;
+        font-size: 0.95em;
+    }
+    
+    .order-item button, .user-item button {
+        margin-top: 8px;
+        width: 100%;
+        padding: 10px;
+    }
+    
+    .modal-card {
+        width: 90%;
+        max-width: 400px;
+    }
+}
+
+/* Small Mobile Devices (480px and below) */
+@media (max-width: 480px) {
+    .owner-main {
+        padding: 10px;
+    }
+    
+    .owner-container {
+        padding: 15px;
+        box-shadow: 0 8px 20px rgba(74, 125, 255, 0.08);
+    }
+    
+    .owner-container h2 {
+        font-size: 1.3em;
+        margin-bottom: 12px;
+    }
+    
+    .owner-container h3 {
+        font-size: 1.1em;
+        margin-top: 15px;
+        margin-bottom: 10px;
+    }
+    
+    #order-management, #user-management {
+        margin-bottom: 20px;
+    }
+    
+    .order-item, .user-item {
+        flex-direction: column;
+        padding: 10px;
+        margin-bottom: 6px;
+    }
+    
+    .order-item p, .user-item p {
+        font-size: 0.9em;
+        margin: 3px 0;
+    }
+    
+    .order-item span, .user-item span {
+        font-size: 0.9em;
+    }
+    
+    .order-item button, .user-item button {
+        width: 100%;
+        padding: 10px;
+        margin-top: 8px;
+        font-size: 0.9em;
+    }
+    
+    .server-status {
+        bottom: 10px;
+        right: 10px;
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+    
+    .modal-card {
+        width: 95%;
+        max-width: 320px;
+        padding: 15px;
+    }
+    
+    .modal-card h3 {
+        font-size: 1.1em;
+        margin-bottom: 12px;
+    }
+    
+    .modal-card label {
+        font-size: 12px;
+        margin: 6px 0;
+    }
+    
+    .modal-card input {
+        padding: 8px;
+        font-size: 14px;
+    }
+    
+    .modal-actions button {
+        padding: 8px 10px;
+        font-size: 0.9em;
+    }
+}

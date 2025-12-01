@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Responsiveness Test - SCS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .test-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .breakpoint-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: #4a7dff;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(74, 125, 255, 0.3);
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .test-card {
+            background: #fff;
+            border: 2px solid #4a7dff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(74, 125, 255, 0.1);
+        }
+        
+        .test-card h3 {
+            color: #4a7dff;
+            margin-top: 0;
+        }
+        
+        .test-card p {
+            margin: 10px 0;
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 480px) {
+            .test-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="landing.html" class="logo">
+            <a href="landing.html" class="logo"><img src="ms-logo.png" alt="MS Logo" style="height: 40px;"></a>
+            SCS
+          </a>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul>
+                <li><a href="landing.html">Home</a></li>
+                <li><a href="track.html" class="active">Test</a></li>
+                <li><a href="order-delivery.html">Order</a></li>
+                <li><a href="owner.html">Manage</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="signup.html" class="button">Sign Up</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="test-container">
+        <h1>📱 Mobile Responsiveness Test</h1>
+        <p>This page tests the responsive design implementation. Resize your browser to see how the layout adapts to different screen sizes.</p>
+        
+        <div class="test-grid">
+            <div class="test-card">
+                <h3>📱 Mobile (≤480px)</h3>
+                <p><strong>Features:</strong></p>
+                <ul>
+                    <li>Hamburger menu visible</li>
+                    <li>Single column layout</li>
+                    <li>Full-width buttons</li>
+                    <li>16px font size (no zoom)</li>
+                    <li>Card-based tables</li>
+                </ul>
+            </div>
+            
+            <div class="test-card">
+                <h3>📱 Tablet (481-768px)</h3>
+                <p><strong>Features:</strong></p>
+                <ul>
+                    <li>Hamburger menu visible</li>
+                    <li>Flexible layouts</li>
+                    <li>Improved spacing</li>
+                    <li>Hybrid form layouts</li>
+                    <li>Touch-friendly</li>
+                </ul>
+            </div>
+            
+            <div class="test-card">
+                <h3>🖥️ Desktop (≥769px)</h3>
+                <p><strong>Features:</strong></p>
+                <ul>
+                    <li>Full horizontal nav</li>
+                    <li>Multi-column layouts</li>
+                    <li>Optimized spacing</li>
+                    <li>No hamburger menu</li>
+                    <li>Full navigation visible</li>
+                </ul>
+            </div>
+        </div>
+
+        <section class="test-section">
+            <h2>✅ Testing Checklist</h2>
+            <div class="checklist-container">
+                <label class="checklist-item">
+                    <input type="checkbox"> Hamburger menu appears at ≤768px
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox"> Menu toggles on hamburger click
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox"> Menu closes on link click
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox"> Form fields stack vertically on mobile
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox"> Buttons are full-width on mobile
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox"> Typography scales properly
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox"> Tables convert to card view on mobile
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox"> No horizontal scroll (except tables)
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox"> Maps responsive on mobile
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox"> Touch targets are ≥44px
+                </label>
+            </div>
+        </section>
+
+        <section class="test-section">
+            <h2>📊 Breakpoints Used</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Device</th>
+                        <th>Breakpoint</th>
+                        <th>Width Range</th>
+                        <th>Hamburger Menu</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Mobile Phone</td>
+                        <td>480px</td>
+                        <td>Max 480px</td>
+                        <td>✓ Visible</td>
+                    </tr>
+                    <tr>
+                        <td>Mobile Landscape</td>
+                        <td>481-768px</td>
+                        <td>481-768px</td>
+                        <td>✓ Visible</td>
+                    </tr>
+                    <tr>
+                        <td>Tablet</td>
+                        <td>768px</td>
+                        <td>Max 768px</td>
+                        <td>✓ Visible</td>
+                    </tr>
+                    <tr>
+                        <td>Desktop</td>
+                        <td>769px+</td>
+                        <td>769px+</td>
+                        <td>✗ Hidden</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Smart Courier System (SCS). All rights reserved.</p>
+    </footer>
+
+    <div class="breakpoint-indicator">
+        <span id="breakpoint-text">Current Breakpoint: Desktop</span>
+    </div>
+
+    <script src="js/mobile-menu.js"></script>
+    <script>
+        // Update breakpoint indicator
+        function updateBreakpoint() {
+            const width = window.innerWidth;
+            const indicator = document.getElementById('breakpoint-text');
+            
+            if (width <= 480) {
+                indicator.textContent = `📱 Mobile (${width}px)`;
+            } else if (width <= 768) {
+                indicator.textContent = `📱 Tablet (${width}px)`;
+            } else {
+                indicator.textContent = `🖥️ Desktop (${width}px)`;
+            }
+        }
+        
+        window.addEventListener('resize', updateBreakpoint);
+        updateBreakpoint();
+    </script>
+</body>
+</html>

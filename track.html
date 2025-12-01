@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Track Your Parcel - Smart Courier System</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/track.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         .track-hero {
@@ -19,6 +20,7 @@
             font-size: 48px;
             margin: 0 0 15px 0;
             font-weight: 700;
+            color: white;
         }
 
         .track-hero p {
@@ -296,6 +298,12 @@
             font-size: 18px;
         }
 
+        .hidden { display: none; }
+
+        .result-tracking-number { font-size: 20px; color: #667eea; font-weight: 600; margin: 8px 0 0 0; }
+
+        .ai-panel { margin-top: 20px; }
+
         .spinner {
             display: inline-block;
             width: 40px;
@@ -362,21 +370,80 @@
                 height: 300px;
             }
         }
+        /* AI panel styles */
+        #ai-panel .ai-card {
+            background: #fffefc;
+            border-left: 4px solid #ffb74d;
+            padding: 18px;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+        #ai-panel .ai-summary { color: #333; margin-bottom: 10px; }
+        #ai-panel .ai-meta { color: #666; font-size: 13px; margin-bottom: 8px; }
+        #ai-panel .ai-actions { margin-top: 8px; }
+        #ai-panel .ai-actions button { padding: 8px 12px; border-radius:6px; border: none; background:#667eea; color: #fff; cursor:pointer }
+
+        /* Chatbot floating UI */
+        #chat-toggle-btn {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg,#667eea,#764ba2);
+            color: #fff;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:20px;
+            cursor:pointer;
+            box-shadow:0 8px 24px rgba(0,0,0,0.15);
+            z-index: 2000;
+        }
+
+        #chat-panel {
+            position: fixed;
+            right: 24px;
+            bottom: 90px;
+            width: 320px;
+            max-height: 480px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+            overflow: hidden;
+            display: none;
+            flex-direction: column;
+            z-index: 2000;
+        }
+
+        #chat-panel.open { display: flex; }
+        #chat-panel .chat-header { background:#667eea; color:#fff; padding:12px 14px; font-weight:600 }
+        #chat-messages { padding:12px; overflow:auto; flex:1; background:#f7f9ff }
+        .chat-message { padding:8px 10px; margin-bottom:8px; border-radius:8px; max-width:86%; white-space:pre-wrap }
+        .chat-bot { background:#fff; align-self:flex-start; color:#333 }
+        .chat-user { background:#667eea; color:#fff; align-self:flex-end }
+        #chat-input-area { display:flex; gap:8px; padding:10px; border-top:1px solid #eee }
+        #chat-input { flex:1; padding:8px 10px; border-radius:8px; border:1px solid #ddd }
+        #chat-send { background:#667eea; color:#fff; border:none; padding:8px 12px; border-radius:8px; cursor:pointer }
     </style>
 </head>
 
 <body>
     <header>
         <nav>
-            <a href="landing.html" class="logo">🚀 SCS</a>
+            <a href="landing.html" class="logo"><img src="ms-logo.png" alt="MS Logo" style="height: 40px;"></a>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
             <ul>
                 <li><a href="landing.html">Home</a></li>
                 <li><a href="landing.html#features">Features</a></li>
                 <li><a href="track.html" class="active">Track</a></li>
                 <li><a href="order-delivery.html">Order</a></li>
                 <li><a href="owner.html">Manage</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="contact.html">Contact</a></li>
                 <li><a href="login.html">Login</a></li>
                 <li><a href="signup.html" class="button">Sign Up</a></li>
             </ul>
@@ -407,15 +474,13 @@
 
             <div id="error-message"></div>
 
-            <div class="info-box">
-                <p><strong>Sample tracking numbers to try:</strong> SCS12345, SCS67890, SCS24680, SCS13579</p>
-            </div>
+
         </div>
 
         <!-- Results Section -->
         <div id="results-section" class="results-section">
             <!-- Loading (do not replace the whole section when loading) -->
-            <div id="results-loading" class="loading" style="display: none;">
+            <div id="results-loading" class="loading hidden">
                 <div class="spinner"></div>
                 <p>Searching for your parcel...</p>
             </div>
@@ -427,7 +492,7 @@
                     <div class="order-header">
                         <div>
                             <strong>Tracking Number</strong>
-                            <p id="result-tracking-number" style="font-size: 20px; color: #667eea; font-weight: 600; margin: 8px 0 0 0;"></p>
+                            <p id="result-tracking-number" class="result-tracking-number"></p>
                         </div>
                         <div>
                             <strong>Current Status</strong>
@@ -457,7 +522,7 @@
 
                 <!-- Map Section -->
                 <div class="map-section">
-                    <h3>Current Location</h3>
+                    <h3>India Service Map</h3>
                     <div id="map"></div>
                 </div>
 
@@ -466,14 +531,24 @@
                     <h3>Delivery Timeline</h3>
                     <div id="timeline-content"></div>
                 </div>
+                <!-- AI Summary Panel -->
+                <div id="ai-panel" class="ai-panel"></div>
             </div>
         </div>
     </main>
 
-    <div id="server-status" class="server-status">
-        <span class="status-indicator"></span>
-        <span class="status-text">Checking server...</span>
+    <!-- Chatbot UI -->
+    <div id="chat-toggle-btn" title="Chat with SCS">💬</div>
+    <div id="chat-panel" aria-hidden="true">
+        <div class="chat-header">SCS Assistant</div>
+        <div id="chat-messages"></div>
+        <div id="chat-input-area">
+            <input id="chat-input" placeholder="Ask about SCS12345 or say 'help'" />
+            <button id="chat-send">Send</button>
+        </div>
     </div>
+
+
 
     <footer>
         <div class="footer-content">
@@ -490,7 +565,6 @@
                 <h4>Company</h4>
                 <ul>
                     <li><a href="about.html">About Us</a></li>
-                    <li><a href="contact.html">Contact</a></li>
                     <li><a href="services.html">Services</a></li>
                 </ul>
             </div>
@@ -517,19 +591,26 @@
     </footer>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/indian-cities.js"></script>
+    <script src="js/mobile-menu.js"></script>
+    <script src="js/track-ai.js"></script>
+    <script src="js/chatbot.js"></script>
     <script>
-        let map, currentMarker = null;
+        let map;
+        let currentMarker = null;
         const serverUrl = 'http://localhost:5000';
+        // (No country selector on this page — track relies on server-provided coordinates)
         const statusIndicator = document.querySelector('.status-indicator');
         const statusText = document.querySelector('.status-text');
         const resultsSection = document.getElementById('results-section');
         const resultsLoading = document.getElementById('results-loading');
         const resultsContent = document.getElementById('results-content');
 
-        // Initialize map
+        // Initialize map with only India displayed
         function initMap() {
             if (!map) {
-                map = L.map('map').setView([37.0902, -95.7129], 4);
+                // Center map on India (20.5937° N, 78.9629° E)
+                map = L.map('map').setView([20.5937, 78.9629], 5);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '© OpenStreetMap contributors'
                 }).addTo(map);
@@ -586,8 +667,19 @@
 
         // Display tracking results
         function displayTrackingResults(order) {
-            // Tracking number
-            document.getElementById('result-tracking-number').textContent = order.trackingNumber;
+
+            // Helper to pick the first available field from multiple possible keys
+            function pick(...keys) {
+                for (const k of keys) {
+                    if (!k) continue;
+                    const v = order[k];
+                    if (v !== undefined && v !== null && String(v).trim() !== '') return v;
+                }
+                return '';
+            }
+            // Tracking number (handle multiple possible keys)
+            const tn = pick('trackingNumber', 'tracking_number') || order.tracking_number || 'Unknown';
+            document.getElementById('result-tracking-number').textContent = String(tn).trim();
 
             // Status badge
             const statusMap = {
@@ -599,26 +691,35 @@
             const statusClass = statusMap[order.status] || 'pending';
             document.getElementById('status-badge').innerHTML = `<span class="status-badge ${statusClass}">${order.status}</span>`;
 
-            // Sender info
+            // Sender info (robust fallbacks)
+            const senderName = pick('sender_name', 'senderName', 'sender') || 'Unknown Sender';
+            const senderAddress = pick('sender_address', 'senderAddress') || 'Address not provided';
+            const senderPhone = pick('sender_phone', 'senderPhone') || 'Phone not provided';
             document.getElementById('sender-info').innerHTML = `
-                <strong>${order.sender_name}</strong><br>
-                ${order.sender_address}<br>
-                ${order.sender_phone || 'Phone not provided'}
+                <strong>${senderName}</strong><br>
+                ${senderAddress}<br>
+                ${senderPhone}
             `;
 
-            // Receiver info
+            // Receiver info (robust fallbacks)
+            const receiverName = pick('receiver_name', 'receiverName', 'receiver') || 'Unknown Receiver';
+            const receiverAddress = pick('receiver_address', 'receiverAddress') || 'Address not provided';
+            const receiverPhone = pick('receiver_phone', 'receiverPhone') || 'Phone not provided';
             document.getElementById('receiver-info').innerHTML = `
-                <strong>${order.receiver_name}</strong><br>
-                ${order.receiver_address}<br>
-                ${order.receiver_phone || 'Phone not provided'}
+                <strong>${receiverName}</strong><br>
+                ${receiverAddress}<br>
+                ${receiverPhone}
             `;
 
-            // Package info
+            // Package info (handle alternate keys)
+            const parcelDesc = pick('parcel_description', 'parcelDescription', 'description') || 'No description provided';
+            const weight = (order.weight !== undefined && order.weight !== null) ? order.weight : 'N/A';
+            const value = (order.value !== undefined && order.value !== null) ? order.value : 'N/A';
             document.getElementById('package-info').innerHTML = `
-                ${order.parcel_description}<br>
-                <strong>Weight:</strong> ${order.weight} kg<br>
-                <strong>Value:</strong> $${order.value}<br>
-                <strong>Service:</strong> ${order.service}
+                ${parcelDesc}<br>
+                <strong>Weight:</strong> ${weight} kg<br>
+                <strong>Value:</strong> $${value}<br>
+                <strong>Service:</strong> ${order.service || 'N/A'}
             `;
 
             // Delivery info
@@ -628,17 +729,6 @@
                 <strong>Estimated Delivery:</strong><br>
                 ${order.estimated_delivery}
             `;
-
-            // Map - initialize and replace previous marker if any
-            initMap();
-            map.setView([order.latitude, order.longitude], 10);
-            if (currentMarker) {
-                map.removeLayer(currentMarker);
-                currentMarker = null;
-            }
-            currentMarker = L.marker([order.latitude, order.longitude], { title: order.location })
-                .addTo(map)
-                .bindPopup(`<strong>${order.location}</strong><br>Current Status: ${order.status}`);
 
             // Timeline
             const timelineContent = document.getElementById('timeline-content');
@@ -653,6 +743,52 @@
                  </div>
              `).join('');
 
+            // AI panel (uses lightweight client-side heuristics)
+            (function renderAI() {
+                try {
+                    const aiPanelRoot = document.getElementById('ai-panel');
+                    if (!aiPanelRoot) return;
+                    if (window.TrackAI && typeof window.TrackAI.generateDetailedSummary === 'function') {
+                        const info = window.TrackAI.generateDetailedSummary(order);
+                        const summary = info.summary;
+                        const confidence = info.confidence;
+                        const reasoning = info.reasoning;
+
+                        aiPanelRoot.innerHTML = `
+                            <div class="ai-card">
+                                <div class="ai-summary">${summary}</div>
+                                <div class="ai-meta">Confidence: ${confidence}% • ${reasoning}</div>
+                                <div class="ai-actions">
+                                    <button id="ai-regenerate">Regenerate Summary</button>
+                                </div>
+                            </div>
+                        `;
+
+                        // wire regenerate
+                        const regenBtn = document.getElementById('ai-regenerate');
+                        if (regenBtn) {
+                            regenBtn.addEventListener('click', () => {
+                                try {
+                                    const r = window.TrackAI.regenerate(order);
+                                    const root = document.querySelector('#ai-panel .ai-card');
+                                    if (root) {
+                                        root.querySelector('.ai-summary').textContent = r.summary;
+                                        root.querySelector('.ai-meta').textContent = `Confidence: ${r.confidence}% • ${r.reasoning}`;
+                                    }
+                                } catch (err) {
+                                    console.warn('AI regenerate failed', err);
+                                }
+                            });
+                        }
+
+                    } else {
+                        aiPanelRoot.innerHTML = '';
+                    }
+                } catch (e) {
+                    console.warn('AI render error', e);
+                }
+            })();
+
             resultsSection.classList.add('active');
         }
 
@@ -665,9 +801,21 @@
             }
         });
 
-        // Check server status on page load
-        checkServerStatus();
-        setInterval(checkServerStatus, 30000);
+        // Initialize map and check server status on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initMap();
+            checkServerStatus();
+            setInterval(checkServerStatus, 30000);
+        });
+        
+        // Fallback if DOM is already loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initMap);
+        } else {
+            initMap();
+            checkServerStatus();
+            setInterval(checkServerStatus, 30000);
+        }
     </script>
 </body>
 </html>
